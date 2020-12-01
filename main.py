@@ -7,11 +7,12 @@ pygame.init()
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.mixer.init() 
 
-DISPLAY_WIDTH = 500
-DISPLAY_HEIGHT = 700
-START_BUTTON_POSITION = DISPLAY_WIDTH / 2 / 2 
-QUIT_BUTTON_POSITION = DISPLAY_WIDTH / 2 + START_BUTTON_POSITION
+DISPLAY_WIDTH = 300
+DISPLAY_HEIGHT = 500
+START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
+QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 font = pygame.font.SysFont('Consolas', 30)
+
 RED = (200, 0, 0)
 BRIGHT_RED = (255,0,0)
 GREEN = (0,200,0)
@@ -58,14 +59,14 @@ def game_intro():
         TextSurf, TextRect = text_objects("Welcome", font)
         TextRect.center = (DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
         screen.blit(TextSurf, TextRect)
-        button("Start", START_BUTTON_POSITION,450,100,50, GREEN, BRIGHT_GREEN, game_loop)
-        button("Quit", QUIT_BUTTON_POSITION,450,100,50, RED, BRIGHT_RED, quitgame)
+        button("Start", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
+        button("Quit", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
         pygame.display.update()
         clock.tick(15)
 
 def game_loop():
     gameExit = False
-    counter, time = 1, '1'.rjust(3)
+    counter, time = 5, '5'.rjust(3)
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     QUESTION = glob.glob("media/question/*.mp3")
     shuffle(QUESTION)
@@ -86,9 +87,12 @@ def game_loop():
                     game_end()
             if e.type == pygame.QUIT:
                 gameExit = True
-
         screen.fill(WHITE)
-        screen.blit(font.render(time, True, BLACK), (DISPLAY_WIDTH / 2, 48))
+        timeSurf, timeRect = text_objects(time, font)
+        timeRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/4)
+        screen.blit(timeSurf, timeRect) 
+        
+        #screen.blit(font.render(time, True, BLACK), (DISPLAY_WIDTH / 2, 48))
         pygame.display.flip()
         clock.tick(60)
 
@@ -113,11 +117,17 @@ def game_end():
         else:
             TEXT = "NOT BAD"
             COLOR = RED
-        screen.blit(font.render(TEXT, True, COLOR), (DISPLAY_WIDTH / 2, 48))
-        screen.blit(font.render(str(SCORE), True, COLOR), (DISPLAY_WIDTH / 2 / 2, 100))
+        textSurf, textRect = text_objects(TEXT, font)
+        textRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
+        scoreSurf, scoreRect = text_objects(str(SCORE), font)
+        scoreRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/3)
+        screen.blit(textSurf, textRect)   
+        screen.blit(scoreSurf, scoreRect)     
+        #screen.blit(font.render(TEXT, True, COLOR), (DISPLAY_WIDTH / 2, 48))
+        #screen.blit(font.render(str(SCORE), True, COLOR), (DISPLAY_WIDTH / 2 / 2, 100))
         
-        button("Restart", START_BUTTON_POSITION,450,100,50, GREEN, BRIGHT_GREEN, game_loop)
-        button("Quit", QUIT_BUTTON_POSITION,450,100,50, RED, BRIGHT_RED, quitgame)
+        button("Restart", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
+        button("Quit", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
         
         pygame.display.flip()
         clock.tick(60)
