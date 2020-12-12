@@ -2,16 +2,18 @@ import sys, pygame #pygame game logic
 from time import sleep #hard coding
 import glob #get a list of files
 from random import shuffle # random question sequence
+from tinytag import TinyTag # access mp3 title 
+import math #set question repeat time 
 
 pygame.init()
 pygame.mixer.pre_init(44100, 16, 2, 4096)
-pygame.mixer.init() 
+pygame.mixer.init()
 
 DISPLAY_WIDTH = 300
 DISPLAY_HEIGHT = 500
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
-font = pygame.font.SysFont('Consolas', 30)
+font = pygame.font.Font('mnjzbh.ttf', 30)
 
 RED = (200, 0, 0)
 BRIGHT_RED = (255,0,0)
@@ -24,11 +26,13 @@ SCORE = 0
 screen = pygame.display.set_mode((DISPLAY_WIDTH , DISPLAY_HEIGHT), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 
+QUESTION = glob.glob("media/question/*.mp3")
+shuffle(QUESTION)
+CURRENT_QUESTION = QUESTION.pop(0)
 
 def text_objects(text, font):
     textSurface = font.render(text, True, (0,0,0))
     return textSurface, textSurface.get_rect()
-
 
 def button(msg, x, y, w, h, ic , ac, action = None):
     mouse = pygame.mouse.get_pos()
@@ -47,6 +51,15 @@ def button(msg, x, y, w, h, ic , ac, action = None):
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
     screen.blit(textSurf, textRect)
 
+def change_current_question():
+    CURRENT_QUESTION = QUESTION.pop(0)
+
+def check_answer(ans):
+    if ans == CURRENT_QUESTION:
+        return True
+    else:
+        return False
+
 def game_intro():
     intro = True
 
@@ -56,41 +69,63 @@ def game_intro():
                 pygame.quit()
                 quit()
         screen.fill(WHITE)
-        TextSurf, TextRect = text_objects("Welcome", font)
+        TextSurf, TextRect = text_objects("你好", font)
         TextRect.center = (DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
         screen.blit(TextSurf, TextRect)
-        button("Start", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
-        button("Quit", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
+        button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
+        button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
         pygame.display.update()
         clock.tick(15)
 
 def game_loop():
     gameExit = False
+
     counter, time = 5, '5'.rjust(3)
-    pygame.time.set_timer(pygame.USEREVENT, 1000)
-    QUESTION = glob.glob("media/question/*.mp3")
-    shuffle(QUESTION)
-    pygame.mixer.music.load(QUESTION.pop(0))
+    COUNTTIMEEVENT = pygame.USEREVENT + 1
+    pygame.time.set_timer(COUNTTIMEEVENT, 1000)
+
+    PLAYSOUNDEVENT = pygame.USEREVENT + 2
+    pygame.time.set_timer(PLAYSOUNDEVENT, 6000)
+
+    quest = CURRENT_QUESTION
+    pygame.mixer.music.load(quest)
     pygame.mixer.music.play()
+    tag = TinyTag.get(quest)
+    quest_text = tag.title
+
     while not gameExit:
         for e in pygame.event.get():
-            if e.type == pygame.USEREVENT:
+            if e.type == COUNTTIMEEVENT:
                 counter -= 1
                 time = str(counter).rjust(3) if counter > 0 else 'TIMES UP'
-     
-                if counter % 10 == 0:
-                    pygame.mixer.music.load(QUESTION.pop(0))
-                    pygame.mixer.music.play()
-                #TODO: RFID AND LED
-
                 if counter == 0:
                     game_end()
+
+            if e.type == PLAYSOUNDEVENT:
+                quest = CURRENT_QUESTION
+                pygame.mixer.music.load(quest)
+                pygame.mixer.music.play()
+                tag = TinyTag.get(quest)
+                quest_text = tag.title
+
+            if e.type == pygame.USEREVENT:
+                print('hi')
+
+
+                #TODO: RFID AND LED
+
+                
             if e.type == pygame.QUIT:
                 gameExit = True
+                
         screen.fill(WHITE)
         timeSurf, timeRect = text_objects(time, font)
         timeRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/4)
         screen.blit(timeSurf, timeRect) 
+
+        questSurf, questRect = text_objects(quest_text, font)
+        questRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
+        screen.blit(questSurf, questRect)
         
         #screen.blit(font.render(time, True, BLACK), (DISPLAY_WIDTH / 2, 48))
         pygame.display.flip()
@@ -109,13 +144,13 @@ def game_end():
 
         screen.fill(WHITE)
         if SCORE > 25:
-            TEXT = "EXCELLENT"
+            TEXT = "十分好!!!"
             COLOR = BRIGHT_GREEN
         elif SCORE > 15:
-            TEXT = "GOOD"
+            TEXT = "做得好!"
             COLOR = GREEN
         else:
-            TEXT = "NOT BAD"
+            TEXT = "不錯哦~"
             COLOR = RED
         textSurf, textRect = text_objects(TEXT, font)
         textRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
@@ -126,8 +161,8 @@ def game_end():
         #screen.blit(font.render(TEXT, True, COLOR), (DISPLAY_WIDTH / 2, 48))
         #screen.blit(font.render(str(SCORE), True, COLOR), (DISPLAY_WIDTH / 2 / 2, 100))
         
-        button("Restart", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
-        button("Quit", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
+        button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
+        button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
         
         pygame.display.flip()
         clock.tick(60)
