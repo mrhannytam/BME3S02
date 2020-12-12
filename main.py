@@ -2,8 +2,105 @@ import sys, pygame #pygame game logic
 from time import sleep #hard coding
 import glob #get a list of files
 from random import shuffle # random question sequence
-from tinytag import TinyTag # access mp3 title 
-import math #set question repeat time 
+from tinytag import TinyTag # access mp3 title
+import math #set question repeat time
+import RPi.GPIO as GPIO
+from mfrc522 import SimpleMFRC522
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
+import Adafruit_SSD1306
+import os
+import time
+from queue import Queue
+from threading import Thread
+import re
+
+GPIO.setmode(GPIO.BCM)
+
+QUESTION = glob.glob("media/question2/*.mp3")
+QUESTION_COUNT = len(QUESTION)
+shuffle(QUESTION)
+print(QUESTION)
+CURRENT_QUESTION = QUESTION.pop(0)
+SCORE = 0
+
+
+q = Queue()
+
+def worker():
+    '''Initialization'''
+    FONT_SIZE = 50
+    disp = Adafruit_SSD1306.SSD1306_128_64(rst=0)
+    disp.begin()
+    disp.clear()
+    disp.display()
+    WIDTH = disp.width
+    HEIGHT = disp.height
+    led_font=ImageFont.truetype("./ARIALUNI.TTF", FONT_SIZE)
+    '''Initialization'''
+
+    '''Define Display Drawing'''
+    def Eyes(check):
+        load = os.getloadavg()
+        image = Image.new('1', (WIDTH, HEIGHT))
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0)
+        if check == True:
+            draw.text((43, 0), 'O',  font=led_font, fill=255)
+            pygame.mixer.music.load('media/sound2/success.mp3')
+            pygame.mixer.music.play()
+
+        else:
+            draw.text((43, 0), 'X',  font=led_font, fill=255)
+            pygame.mixer.music.load('media/sound2/fail.mp3')
+            pygame.mixer.music.play()
+
+        disp.image(image)
+        disp.display()
+        time.sleep(3)
+    '''Define Display Drawing'''
+    def change_current_question():
+        global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
+        QUESTION_COUNT -= 1
+        CURRENT_QUESTION = QUESTION.pop(0)
+
+    def check_answer(ans):
+        if ans == int(CURRENT_QUESTION[16:-4]):
+            return True
+        else:
+            return False
+
+    reader = SimpleMFRC522()
+
+    while True:
+        print('COUNT', QUESTION_COUNT)
+        try:
+            id, text = reader.read()
+            sleep(0.3)
+            card = int(text)
+            print(CURRENT_QUESTION[16:-4],card)
+            if check_answer(card):
+                print('correct')
+                global SCORE
+                SCORE += 1
+                change_current_question()
+                Eyes(True)
+            else:
+                print('wrong')
+                change_current_question()
+                Eyes(False)
+        except:
+            print('', end='')
+        finally:
+            GPIO.cleanup()
+            disp.clear()
+            disp.display()
+
+
+t = Thread(target=worker)
+t.daemon = True
+t.start()
 
 pygame.init()
 pygame.mixer.pre_init(44100, 16, 2, 4096)
@@ -21,14 +118,10 @@ GREEN = (0,200,0)
 BRIGHT_GREEN = (0,255,0)
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
-SCORE = 0
+
 
 screen = pygame.display.set_mode((DISPLAY_WIDTH , DISPLAY_HEIGHT), pygame.RESIZABLE)
 clock = pygame.time.Clock()
-
-QUESTION = glob.glob("media/question/*.mp3")
-shuffle(QUESTION)
-CURRENT_QUESTION = QUESTION.pop(0)
 
 def text_objects(text, font):
     textSurface = font.render(text, True, (0,0,0))
@@ -51,15 +144,6 @@ def button(msg, x, y, w, h, ic , ac, action = None):
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
     screen.blit(textSurf, textRect)
 
-def change_current_question():
-    CURRENT_QUESTION = QUESTION.pop(0)
-
-def check_answer(ans):
-    if ans == CURRENT_QUESTION:
-        return True
-    else:
-        return False
-
 def game_intro():
     intro = True
 
@@ -80,7 +164,17 @@ def game_intro():
 def game_loop():
     gameExit = False
 
-    counter, time = 5, '5'.rjust(3)
+    global QUESTION
+    QUESTION = glob.glob("media/question2/*.mp3")
+    global QUESTION_COUNT
+    QUESTION_COUNT = len(QUESTION)
+    shuffle(QUESTION)
+    global CURRENT_QUESTION
+    CURRENT_QUESTION = QUESTION.pop(0)
+    global SCORE
+    SCORE = 0
+
+    counter, time = 60, '60'.rjust(3)
     COUNTTIMEEVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(COUNTTIMEEVENT, 1000)
 
@@ -108,25 +202,21 @@ def game_loop():
                 tag = TinyTag.get(quest)
                 quest_text = tag.title
 
-            if e.type == pygame.USEREVENT:
-                print('hi')
-
-
-                #TODO: RFID AND LED
-
-                
             if e.type == pygame.QUIT:
                 gameExit = True
-                
+
         screen.fill(WHITE)
         timeSurf, timeRect = text_objects(time, font)
         timeRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/4)
-        screen.blit(timeSurf, timeRect) 
+        screen.blit(timeSurf, timeRect)
 
         questSurf, questRect = text_objects(quest_text, font)
         questRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
         screen.blit(questSurf, questRect)
-        
+
+        if QUESTION_COUNT == 0:
+            game_end()
+
         #screen.blit(font.render(time, True, BLACK), (DISPLAY_WIDTH / 2, 48))
         pygame.display.flip()
         clock.tick(60)
@@ -156,21 +246,21 @@ def game_end():
         textRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
         scoreSurf, scoreRect = text_objects(str(SCORE), font)
         scoreRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/3)
-        screen.blit(textSurf, textRect)   
-        screen.blit(scoreSurf, scoreRect)     
+        screen.blit(textSurf, textRect)
+        screen.blit(scoreSurf, scoreRect)
         #screen.blit(font.render(TEXT, True, COLOR), (DISPLAY_WIDTH / 2, 48))
         #screen.blit(font.render(str(SCORE), True, COLOR), (DISPLAY_WIDTH / 2 / 2, 100))
-        
+
         button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
         button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
-        
+
         pygame.display.flip()
         clock.tick(60)
 
 def quitgame():
     pygame.quit()
-    quit()
-    #TODO: os.sys("sudo shutdown now -h")
+    #quit()
+    os.system('sudo shutdown now')
 
 game_intro()
 pygame.quit()
