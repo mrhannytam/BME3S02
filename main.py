@@ -18,13 +18,15 @@ import re
 
 GPIO.setmode(GPIO.BCM)
 
-QUESTION = glob.glob("media/question2/*.mp3")
+QUESTION = glob.glob("media/question/*.mp3")
 QUESTION_COUNT = len(QUESTION)
 shuffle(QUESTION)
-print(QUESTION)
 CURRENT_QUESTION = QUESTION.pop(0)
 SCORE = 0
 
+pygame.mixer.init(frequency = 44100, size = -16, channels = 1, buffer = 2**12)
+channel1 = pygame.mixer.Channel(0)
+channel2 = pygame.mixer.Channel(1)
 
 q = Queue()
 
@@ -37,8 +39,9 @@ def worker():
     disp.display()
     WIDTH = disp.width
     HEIGHT = disp.height
-    led_font=ImageFont.truetype("./ARIALUNI.TTF", FONT_SIZE)
+    led_font=ImageFont.truetype("./media/font/ARIALUNI.TTF", FONT_SIZE)
     '''Initialization'''
+
 
     '''Define Display Drawing'''
     def Eyes(check):
@@ -48,38 +51,42 @@ def worker():
         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0)
         if check == True:
             draw.text((43, 0), 'O',  font=led_font, fill=255)
-            pygame.mixer.music.load('media/sound2/success.mp3')
-            pygame.mixer.music.play()
+            #pygame.mixer.Channel(0).load('media/sound2/success.mp3')
+            channel1.play(pygame.mixer.Sound('media/sound2/success.wav'))
 
         else:
             draw.text((43, 0), 'X',  font=led_font, fill=255)
-            pygame.mixer.music.load('media/sound2/fail.mp3')
-            pygame.mixer.music.play()
+            #pygame.mixer.music.Channel(0).load('media/sound2/fail.mp3')
+            #pygame.mixer.music.Channel(0).play()
+            channel1.play(pygame.mixer.Sound('media/sound2/fail.wav'))
 
         disp.image(image)
         disp.display()
         time.sleep(3)
     '''Define Display Drawing'''
+
+
     def change_current_question():
         global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
         QUESTION_COUNT -= 1
         CURRENT_QUESTION = QUESTION.pop(0)
 
+
     def check_answer(ans):
-        if ans == int(CURRENT_QUESTION[16:-4]):
+        if ans == int(CURRENT_QUESTION[15:-4]):
             return True
         else:
             return False
 
-    reader = SimpleMFRC522()
 
+    reader = SimpleMFRC522()
     while True:
         print('COUNT', QUESTION_COUNT)
         try:
             id, text = reader.read()
             sleep(0.3)
             card = int(text)
-            print(CURRENT_QUESTION[16:-4],card)
+            print(CURRENT_QUESTION[15:-4],card)
             if check_answer(card):
                 print('correct')
                 global SCORE
@@ -110,7 +117,7 @@ DISPLAY_WIDTH = 300
 DISPLAY_HEIGHT = 500
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
-font = pygame.font.Font('mnjzbh.ttf', 30)
+font = pygame.font.Font('media/font/mnjzbh.ttf', 30)
 
 RED = (200, 0, 0)
 BRIGHT_RED = (255,0,0)
@@ -164,22 +171,20 @@ def game_intro():
 def game_loop():
     gameExit = False
 
-    global QUESTION
-    QUESTION = glob.glob("media/question2/*.mp3")
-    global QUESTION_COUNT
+    global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, SCORE
+    QUESTION = glob.glob("media/question/*.mp3")
+
     QUESTION_COUNT = len(QUESTION)
     shuffle(QUESTION)
-    global CURRENT_QUESTION
     CURRENT_QUESTION = QUESTION.pop(0)
-    global SCORE
     SCORE = 0
 
-    counter, time = 60, '60'.rjust(3)
+    counter, time = 100, '100'.rjust(3) #SET COUNT TIME
     COUNTTIMEEVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(COUNTTIMEEVENT, 1000)
 
     PLAYSOUNDEVENT = pygame.USEREVENT + 2
-    pygame.time.set_timer(PLAYSOUNDEVENT, 6000)
+    pygame.time.set_timer(PLAYSOUNDEVENT, 1000)
 
     quest = CURRENT_QUESTION
     pygame.mixer.music.load(quest)
@@ -195,12 +200,13 @@ def game_loop():
                 if counter == 0:
                     game_end()
 
-            if e.type == PLAYSOUNDEVENT:
+            if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy() and not channel1.get_busy():
                 quest = CURRENT_QUESTION
                 pygame.mixer.music.load(quest)
                 pygame.mixer.music.play()
                 tag = TinyTag.get(quest)
                 quest_text = tag.title
+                print(quest)
 
             if e.type == pygame.QUIT:
                 gameExit = True
@@ -216,6 +222,9 @@ def game_loop():
 
         if QUESTION_COUNT == 0:
             game_end()
+
+        if channel1.get_busy() and pygame.mixer.music.get_busy():
+            pygame.mixer.music.stop()
 
         #screen.blit(font.render(time, True, BLACK), (DISPLAY_WIDTH / 2, 48))
         pygame.display.flip()
@@ -233,14 +242,17 @@ def game_end():
                 quitgame()
 
         screen.fill(WHITE)
-        if SCORE > 25:
+        if SCORE > 10:
             TEXT = "十分好!!!"
             COLOR = BRIGHT_GREEN
-        elif SCORE > 15:
+        elif SCORE > 5:
             TEXT = "做得好!"
             COLOR = GREEN
-        else:
+        elif SCORE > 1:
             TEXT = "不錯哦~"
+            COLOR = GREEN
+        else:
+            TEXT = "加油哦~"
             COLOR = RED
         textSurf, textRect = text_objects(TEXT, font)
         textRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
