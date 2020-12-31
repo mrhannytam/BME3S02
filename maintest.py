@@ -55,7 +55,7 @@ def worker():
             draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/success.wav'))
             Motor(True)
-
+            
         else:
             draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/fail.wav'))
@@ -121,8 +121,7 @@ def worker():
                 SCORE += 1 #Add score
                 change_current_question() #Change question
                 Eyes(True) #show eyes image and play music
-                
-                
+                                
             else:
                 print('wrong')
                 change_current_question()
@@ -153,6 +152,8 @@ DISPLAY_HEIGHT = 500 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 font = pygame.font.Font('/home/pi/Desktop/BME3S02/media/font/mnjzbh.ttf', 30)
+#EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
+#HARD_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 
 
 #Colur
@@ -198,8 +199,8 @@ def game_intro():
     intro = True
 
     pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
-    pygame.mixer.music.play()
-    
+    pygame.mixer.music.play()    
+
     while intro:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == pygame.QUIT:
@@ -214,14 +215,26 @@ def game_intro():
         pygame.display.update() # Update the display screen
         clock.tick(15) #Update the display screen
 
+# difficulty
+#def difficulty():
+    
+    #button("簡單", EASY_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop(True))
+    #button("困難", HARD_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, game_loop(False))
+
+    #pygame.display.update() # Update the display screen
+    #clock.tick(15) #Update the display screen
 
 #Main game logic
 def game_loop():
     gameExit = False
-
     #Access the global parameter for accessing game resources (First start + Restart)
     global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, SCORE
+    
+    #if check == True:
     QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
+    #else:
+        #QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question2/*.mp3")
+
     QUESTION_COUNT = len(QUESTION)
     shuffle(QUESTION)
     CURRENT_QUESTION = QUESTION.pop(0)
