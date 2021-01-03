@@ -197,13 +197,15 @@ def button(msg, x, y, w, h, ic , ac, action = None):
 #Game introduction, showing hello
 def game_intro():
     intro = True
-    if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy() and not channel1.get_busy():
-        pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
-        pygame.mixer.music.play(-1)
-                    
+    PLAYSOUNDEVENT = pygame.USEREVENT + 2 #Define sound event
+    pygame.time.set_timer(PLAYSOUNDEVENT, 1000) #Play question mp3 every 1s
 
     while intro:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
+            if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy() and not channel1.get_busy():
+                pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
+                pygame.mixer.music.play(-1)
+                
             if e.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -225,6 +227,7 @@ def difficulty():
             if e.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+        print ("hello,test")
         screen.fill(WHITE) #Set the screen to white constatly
         TextSurf, TextRect = text_objects("請選擇難度", font)
         TextRect.center = (DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
@@ -233,9 +236,6 @@ def difficulty():
         button("困難", HARD_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, game_loop(False))
         pygame.display.update() # Update the display screen
         clock.tick(60) #Update the display screen
-
-    pygame.display.update() # Update the display screen
-    clock.tick(15) #Update the display screen
 
 #Main game logic
 def game_loop(check_e_h):
@@ -304,7 +304,7 @@ def game_loop(check_e_h):
             pygame.mixer.music.stop()
 
         pygame.display.flip()
-        clock.tick(300)
+        clock.tick(60)
 
 
 #End game
