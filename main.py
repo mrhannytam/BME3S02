@@ -54,19 +54,19 @@ def worker():
         if check == True:
             draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/success.wav'))
-            Motor(True)
-
+            Motor_head(True)
+            
         else:
             draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/fail.wav'))
-            Motor(False)
+            Motor_head(False)
 
         disp.image(image)
         disp.display() #Display on OLED monitor
         time.sleep(3) #Prevent user touch too frequently
 
-    #motor
-    def Motor(check):
+    #motor_head
+    def Motor_head(check):
 
         pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
         pwm.start(0)
@@ -121,8 +121,7 @@ def worker():
                 SCORE += 1 #Add score
                 change_current_question() #Change question
                 Eyes(True) #show eyes image and play music
-                
-                
+                                
             else:
                 print('wrong')
                 change_current_question()
@@ -148,11 +147,14 @@ pygame.mixer.init()
 
 
 #Pygame parameter
-DISPLAY_WIDTH = 300 #Define LCD monitor width
-DISPLAY_HEIGHT = 500 #Define LCD monitor height
+DISPLAY_WIDTH = 500 #Define LCD monitor width
+DISPLAY_HEIGHT = 700 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
+EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
+HARD_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + EASY_BUTTON_POSITION_X * 2
 font = pygame.font.Font('/home/pi/Desktop/BME3S02/media/font/mnjzbh.ttf', 30)
+
 
 
 #Colur
@@ -179,9 +181,14 @@ def button(msg, x, y, w, h, ic , ac, action = None):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
 
+    print('In Button')
+    print(f'x: {mouse[0]}, y: {mouse[1]}')
+    print(f'click: {click[0]}')
+
     if x+w > mouse[0] > x and y+h > mouse[1] > y:
         pygame.draw.rect(screen, ac,(x,y,w,h))
         if click[0] == 1 and action != None:
+            #print(action.__name__)
             action()
             pygame.display.flip()
     else:
@@ -192,36 +199,62 @@ def button(msg, x, y, w, h, ic , ac, action = None):
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
     screen.blit(textSurf, textRect)
 
+stage = ['intro', 'diff']
+CURRENT_STAGE = stage[0]
 
 #Game introduction, showing hello
 def game_intro():
     intro = True
+    PLAYSOUNDEVENT = pygame.USEREVENT + 2 #Define sound event
+    pygame.time.set_timer(PLAYSOUNDEVENT, 1000) #Play question mp3 every 1s
 
-    pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
-    pygame.mixer.music.play()
-    
+    #background_image = pygame.image.load("/home/pi/Desktop/BME3S02/media/game_image_hard/46.jpg").convert()
+        
+
     while intro:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
+            if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy() and not channel1.get_busy():
+                pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
+                pygame.mixer.music.play(-1)
+         
             if e.type == pygame.QUIT:
                 pygame.quit()
                 quit()
         screen.fill(WHITE) #Set the screen to white constatly
-        TextSurf, TextRect = text_objects("你好", font)
+
+
+        #testing 
+        #screen.blit(background_image, [0, 0])
+
+
+        TextSurf, TextRect = text_objects("你好" if CURRENT_STAGE == stage[0] else "請選擇難度", font)
         TextRect.center = (DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
         screen.blit(TextSurf, TextRect)
-        button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
-        button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
+        if CURRENT_STAGE == stage[0]:
+            button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, updateStage)
+            button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
+        else:
+            button("簡單", EASY_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
+            button("困難", HARD_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, lambda: game_loop(False))
         pygame.display.update() # Update the display screen
         clock.tick(15) #Update the display screen
 
 
-#Main game logic
-def game_loop():
-    gameExit = False
+def updateStage():
+    global CURRENT_STAGE
+    CURRENT_STAGE = stage[1]
 
+#Main game logic
+def game_loop(check_e_h = True):
+    gameExit = False
     #Access the global parameter for accessing game resources (First start + Restart)
     global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, SCORE
-    QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
+    
+    if check_e_h == True:
+        QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
+    elif check_e_h == False:
+        QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/questioH/*.mp3")
+
     QUESTION_COUNT = len(QUESTION)
     shuffle(QUESTION)
     CURRENT_QUESTION = QUESTION.pop(0)
@@ -319,8 +352,17 @@ def game_end():
         screen.blit(scoreSurf, scoreRect)
 
         #Define two buttons on the screen
-        button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
-        button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
+        #button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, updateStage)
+        #button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
+
+        if CURRENT_STAGE == stage[0]:
+            button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
+            button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
+        else:
+            button("簡單", EASY_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
+            button("困難", HARD_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, lambda: game_loop(False))
+            button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/10, 120, 50, RED, BRIGHT_RED, quitgame)
+
 
         pygame.display.flip()
         clock.tick(60)

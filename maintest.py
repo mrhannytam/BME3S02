@@ -147,8 +147,8 @@ pygame.mixer.init()
 
 
 #Pygame parameter
-DISPLAY_WIDTH = 300 #Define LCD monitor width
-DISPLAY_HEIGHT = 500 #Define LCD monitor height
+DISPLAY_WIDTH = 500 #Define LCD monitor width
+DISPLAY_HEIGHT = 700 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
@@ -208,7 +208,7 @@ def game_intro():
     PLAYSOUNDEVENT = pygame.USEREVENT + 2 #Define sound event
     pygame.time.set_timer(PLAYSOUNDEVENT, 1000) #Play question mp3 every 1s
 
-    background_image = pygame.image.load("/home/pi/Desktop/BME3S02/media/game_image_hard/46.jpg").convert()
+    
         
 
     while intro:
@@ -221,11 +221,6 @@ def game_intro():
                 pygame.quit()
                 quit()
         screen.fill(WHITE) #Set the screen to white constatly
-
-
-        #testing 
-        screen.blit(background_image, [0, 0])
-
 
         TextSurf, TextRect = text_objects("你好" if CURRENT_STAGE == stage[0] else "請選擇難度", font)
         TextRect.center = (DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
@@ -249,14 +244,16 @@ def updateStage():
 def game_loop(check_e_h = True):
     gameExit = False
     #Access the global parameter for accessing game resources (First start + Restart)
-    global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, SCORE
+    global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, SCORE , QUESTION_PHOTO
     
     if check_e_h == True:
         QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
     elif check_e_h == False:
-        QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question2/*.mp3")
-
+        QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/questioH/*.mp3")
+    
+    QUESTION_PHOTO = pygame.image.load("/home/pi/Desktop/BME3S02/media/game_image/*.jpg").convert()
     QUESTION_COUNT = len(QUESTION)
+    screen.blit(QUESTION_PHOTO, [0, 0]) #show the photo
     shuffle(QUESTION)
     CURRENT_QUESTION = QUESTION.pop(0)
     SCORE = 0
@@ -358,12 +355,11 @@ def game_end():
 
         if CURRENT_STAGE == stage[0]:
             button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
-            
             button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, quitgame)
         else:
             button("簡單", EASY_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, GREEN, BRIGHT_GREEN, game_loop)
             button("困難", HARD_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 120, 50, RED, BRIGHT_RED, lambda: game_loop(False))
-
+            button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/10, 120, 50, RED, BRIGHT_RED, quitgame)
 
         pygame.display.flip()
         clock.tick(60)
