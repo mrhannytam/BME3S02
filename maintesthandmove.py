@@ -59,23 +59,20 @@ def worker():
         draw = ImageDraw.Draw(image)
         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
         if check == True:
-            draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
             channel1.play(pygame.mixer.Sound('./media/sound2/success.wav'))
-            Motor_head(True)
-            Motor_mouth(False)
-            
+            draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
+            disp.image(image)
+            disp.display() #Display on OLED monitor
+            #Motor_head(True)
+            #Motor_mouth(False)
+
         elif check == False:
-            draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
             channel1.play(pygame.mixer.Sound('./media/sound2/fail.wav'))
-            Motor_head(False)
-            Motor_mouth(True)
-
-
-        elif check == 2:
-            draw.text((43, 0), 'H',  font=led_font, fill=255) #Draw 'H' on OLED monitor    
-
-        disp.image(image)
-        disp.display() #Display on OLED monitor
+            draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
+            disp.image(image)
+            disp.display() #Display on OLED monitor
+            #Motor_head(False)
+            #Motor_mouth(True)
         time.sleep(3) #Prevent user touch too frequently
 
     #motor_head
@@ -103,7 +100,7 @@ def worker():
             pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
             time.sleep(0.3)
         pwm.stop()
-            
+
     #motor_mouth
     def Motor_mouth(check):
 
@@ -162,12 +159,12 @@ def worker():
                 SCORE += 1 #Add score
                 change_current_question() #Change question
                 Eyes(True) #show eyes image and play music
-                                
+
             else:
                 print('wrong')
                 Eyes(False)
-                
-                             
+
+
         except:
             print('', end='')
         finally:
@@ -232,7 +229,7 @@ def button(msg, x, y, w, h, ic , ac, action = None, parameter = None):
             #action()
             #pygame.display.flip()
             print('i click', action)
-            sleep(0.3) #Prevent click too fast 
+            sleep(0.3) #Prevent click too fast
             if parameter == None: #Check parameter, otherwise all function with parameter will be click automatically
                 print('This is no parameter')
                 action()
@@ -261,11 +258,11 @@ def game_intro():
                 path_intro = "./media/sound/opening/" #random opening
                 file_intro = os.path.join(path_intro, random.choice(os.listdir(path_intro)))
                 pygame.mixer.init()
-                pygame.mixer.music.load(file_intro) 
+                pygame.mixer.music.load(file_intro)
                 ##pygame.mixer.music.load("./media/sound/opening/opening1.mp3")
                 pygame.mixer.music.play()
-                
-                
+
+
             if e.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -289,7 +286,7 @@ def difficulty():
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
                 pygame.mixer.music.load("./media/sound/choice.mp3")
                 pygame.mixer.music.play()
-         
+
             if e.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -317,7 +314,7 @@ def game_loop(difficult = None):
     print('Here is game loop, the difficultly is ', difficult)
     #Access the global parameter for accessing game resources (First start + Restart)
     global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, CURRENT_QUESTION_IMAGE, SCORE
-    
+
     if difficult == 'easy':
         QUESTION = glob.glob("./media/question/*.mp3")
     elif difficult == 'hard':
@@ -348,7 +345,7 @@ def game_loop(difficult = None):
         temp = quest
         CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('questioH', 'game_image_hard')
     print(quest, CURRENT_QUESTION_IMAGE, QUESTION_COUNT)
-    
+
 
     while True:
         for e in pygame.event.get(): #EVENT handling
@@ -400,7 +397,8 @@ def game_loop(difficult = None):
         #wrong
         button("錯誤", 280, 0, 140, 65, RED, BRIGHT_RED, wrong_ans_test)
 
-        
+
+
         if QUESTION_COUNT == 0: #End game if the number of question is 0
             game_end()
 
@@ -445,42 +443,42 @@ led_font=ImageFont.truetype("./media/font/ARIALUNI.TTF", FONT_SIZE)
 #for no rfid
 def Eyes2_check(hold):
     if hold==True:
-        disp.display() 
+        disp.display()
         load = os.getloadavg()
         image = Image.new('1', (WIDTH, HEIGHT))
         draw = ImageDraw.Draw(image)
         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0)
-        draw.text((43, 0), 'H',  font=led_font, fill=255) #Draw 'H' on OLED monitor    
-            
+        draw.text((43, 0), 'H',  font=led_font, fill=255) #Draw 'H' on OLED monitor
+
     else:
         disp.image(image)
         disp.display()
-          
+
 #OLED for no rfid
 def Eyes2(check):
-    disp.display() 
+    disp.display()
     load = os.getloadavg()
     image = Image.new('1', (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(image)
     draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
-    
-    
+
+
     if check == True:
         draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
         channel1.play(pygame.mixer.Sound('./media/sound2/success.wav'))
         Motor_head2(True)
         Motor_mouth2(False)
-        
-                    
+
+
     elif check == False:
         draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
         channel1.play(pygame.mixer.Sound('./media/sound2/fail.wav'))
         Motor_head2(False)
         Motor_mouth2(True)
-              
+
     elif check == 2:
         draw.text((43, 0), 'H',  font=led_font, fill=255) #Draw 'H' on OLED monitor
-    
+
     disp.image(image)
     disp.display() #Display on OLED monitor
     time.sleep(3) #Prevent user touch too frequently
@@ -509,11 +507,11 @@ def Motor_head2(check):
         time.sleep(0.3)
         pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
         time.sleep(0.3)
-        
-        
+
+
     pwm.stop()
-    
-            
+
+
     #motor_mouth
 def Motor_mouth2(check):
 
@@ -537,8 +535,8 @@ def Motor_mouth2(check):
         time.sleep(0.5)
         pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
         time.sleep(0.5)
-        
-        
+
+
     pwm2.stop()
 
 
@@ -546,11 +544,11 @@ def Motor_mouth2(check):
 
 #End game
 def game_end():
-    #pygame.mixer.music.load('./media/sound/timesup.mp3')
-    path_end = "./media/sound/timesup/" #random timesup
-    file_end = os.path.join(path_end, random.choice(os.listdir(path_end)))
-    pygame.mixer.init()
-    pygame.mixer.music.load(file_end) 
+    pygame.mixer.music.load('./media/sound/timesup.mp3')
+    #path_end = "./media/sound/timesup/" #random timesup
+    #file_end = os.path.join(path_end, random.choice(os.listdir(path_end)))
+    #pygame.mixer.init()
+    #pygame.mixer.music.load(file_end)
     pygame.mixer.music.play()
     #end_game_sound(SCORE)
     TEXT = ""
@@ -559,10 +557,10 @@ def game_end():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 quitgame()
-            
+
         screen.fill(WHITE)
-        
-        
+
+
 #def end_game_sound(SCORE):
         #TODO: implement the text color in the text function, lazy to do
     if SCORE > 10: #Show different label to the elderly according to their score
@@ -601,7 +599,7 @@ def game_end():
         button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 140, 65, RED, BRIGHT_RED, quitgame)
 
 
-       
+
         pygame.display.flip()
         clock.tick(60)
 
