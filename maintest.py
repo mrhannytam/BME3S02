@@ -1,15 +1,17 @@
+#  -*- coding: utf-8 -*-
+
 import sys, pygame #pygame game logic
 from time import sleep #hard coding
 import glob #get a list of files
 from random import shuffle # random question sequence
 from tinytag import TinyTag # access mp3 title
 import math #set question repeat time
-##import RPi.GPIO as GPIO #RFID + OLED
-##from mfrc522 import SimpleMFRC522 #RFID
+import RPi.GPIO as GPIO #RFID + OLED
+from mfrc522 import SimpleMFRC522 #RFID
 from PIL import Image #OLED
 from PIL import ImageDraw #OLED
 from PIL import ImageFont #OLED
-##import Adafruit_SSD1306 #OLED
+import Adafruit_SSD1306 #OLED
 import os # shutdown computer
 import time #set timeout to prevent RFID detect too many time
 from queue import Queue #Split the program to 2 threads
@@ -40,14 +42,14 @@ PWM_FREQ = 50
 #GPIO Control (for software threads)
 def worker():
     FONT_SIZE = 50
-    ##disp = Adafruit_SSD1306.SSD1306_128_64(rst=0) #initialize the OLED
-    ##reader = SimpleMFRC522() #Initializae the RFID
-    ##disp.begin()
-    ##disp.clear()
-    ##disp.display()
-    ##WIDTH = disp.width
-    ##HEIGHT = disp.height
-    ##led_font=ImageFont.truetype("./media/font/ARIALUNI.TTF", FONT_SIZE)
+    disp = Adafruit_SSD1306.SSD1306_128_64(rst=0) #initialize the OLED
+    reader = SimpleMFRC522() #Initializae the RFID
+    disp.begin()
+    disp.clear()
+    disp.display()
+    WIDTH = disp.width
+    HEIGHT = disp.height
+    led_font=ImageFont.truetype("./media/font/ARIALUNI.TTF", FONT_SIZE)
 
 
     #OLED
@@ -58,17 +60,16 @@ def worker():
         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
         if check == True:
             draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
-            channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/success.wav'))
+            channel1.play(pygame.mixer.Sound('./media/sound2/success.wav'))
             Motor_head(True)
             Motor_mouth(False)
             
         elif check == False:
             draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
-            channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/fail.wav'))
+            channel1.play(pygame.mixer.Sound('./media/sound2/fail.wav'))
             Motor_head(False)
             Motor_mouth(True)
-
-
+            
 
         disp.image(image)
         disp.display() #Display on OLED monitor
@@ -113,16 +114,20 @@ def worker():
             next
         else:
             #motor_mouth
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(180))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(180))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
 
         pwm2.stop()
 
@@ -143,16 +148,15 @@ def worker():
 
 
     while True:
-        ##GPIO.setmode(GPIO.BCM) #Set the GPIO to BCM mode
-        ##GPIO.setup(CONTROL_PIN, GPIO.OUT) #for motor_head
-        ##GPIO.setup(CONTROL_PIN2, GPIO.OUT) #for motor_mouth
+        GPIO.setmode(GPIO.BCM) #Set the GPIO to BCM mode
+        GPIO.setup(CONTROL_PIN, GPIO.OUT) #for motor_head
+        GPIO.setup(CONTROL_PIN2, GPIO.OUT) #for motor_mouth
         print('COUNT', QUESTION_COUNT) #Still have ? questions
         try:
             id, text = reader.read() #RFID reading
             sleep(0.3)
             card = int(text) #Changing RFID text to integer
             print(CURRENT_QUESTION[40:-4],card)
-            draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
 
             if check_answer(card): #Checking answer
                 print('correct')
@@ -169,10 +173,10 @@ def worker():
         except:
             print('', end='')
         finally:
-            ##GPIO.cleanup()
-            ##disp.clear()
-            ##disp.display() #Display nothing to the OLED monitor (Clear)
-            next
+            GPIO.cleanup()
+            disp.clear()
+            disp.display() #Display nothing to the OLED monitor (Clear)
+
 
 t = Thread(target=worker) #Set up the thread
 t.daemon = True
@@ -259,7 +263,8 @@ def game_intro():
                 pygame.mixer.init()
                 pygame.mixer.music.load(file_intro) 
                 pygame.mixer.music.play()
-         
+                
+                
             if e.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -385,7 +390,7 @@ def game_loop(difficult = None):
         quest_image = pygame.image.load(CURRENT_QUESTION_IMAGE)
         screen.blit(quest_image,((DISPLAY_WIDTH / 5), (DISPLAY_HEIGHT/2.5)))
 
-        #SKIP question
+        #pass question
         button("跳過", 0, 0, 140, 65, RED, BRIGHT_RED, pass_ans)
             
         if QUESTION_COUNT == 0: #End game if the number of question is 0
@@ -398,6 +403,7 @@ def game_loop(difficult = None):
         clock.tick(60)
 
 #pass
+
 def pass_ans():
     global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
     QUESTION_COUNT -= 1
@@ -435,7 +441,7 @@ def game_end():
             COLOR = GREEN
 
         else:
-            TEXT = "再接再勵~"
+            TEXT = "加油哦~"
             pygame.mixer.music.load('./media/sound/again.mp3')
             pygame.mixer.music.play()
             COLOR = RED

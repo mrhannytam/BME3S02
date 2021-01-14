@@ -1,3 +1,5 @@
+#  -*- coding: utf-8 -*-
+
 import sys, pygame #pygame game logic
 from time import sleep #hard coding
 import glob #get a list of files
@@ -69,7 +71,6 @@ def worker():
             Motor_mouth(True)
 
 
-
         disp.image(image)
         disp.display() #Display on OLED monitor
         time.sleep(3) #Prevent user touch too frequently
@@ -113,16 +114,20 @@ def worker():
             next
         else:
             #motor_mouth
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(180))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(180))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
 
         pwm2.stop()
 
@@ -152,7 +157,6 @@ def worker():
             sleep(0.3)
             card = int(text) #Changing RFID text to integer
             print(CURRENT_QUESTION[40:-4],card)
-            draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
 
             if check_answer(card): #Checking answer
                 print('correct')
@@ -164,8 +168,7 @@ def worker():
             else:
                 print('wrong')
                 Eyes(False)
-                
-                             
+              
         except:
             print('', end='')
         finally:
@@ -173,6 +176,7 @@ def worker():
             ##disp.clear()
             ##disp.display() #Display nothing to the OLED monitor (Clear)
             next
+
 
 t = Thread(target=worker) #Set up the thread
 t.daemon = True

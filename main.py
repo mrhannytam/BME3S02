@@ -1,3 +1,5 @@
+#  -*- coding: utf-8 -*-
+
 import sys, pygame #pygame game logic
 from time import sleep #hard coding
 import glob #get a list of files
@@ -111,16 +113,20 @@ def worker():
             next
         else:
             #motor_mouth
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(180))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(180))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(110))
-            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
 
         pwm2.stop()
 
@@ -163,7 +169,7 @@ def worker():
                 
                              
         except:
-            print('', end='')
+            print('', end =='')
         finally:
             GPIO.cleanup()
             disp.clear()
@@ -250,8 +256,8 @@ def game_intro():
     while True:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
-                #pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
-                pygame.mixer.music.load("./media/sound/opening.mp3")
+                #pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening/opening.mp3")
+                pygame.mixer.music.load("./media/sound/opening/opening1.mp3")
                 pygame.mixer.music.play()
          
             if e.type == pygame.QUIT:
@@ -276,7 +282,7 @@ def difficulty():
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
                 #pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
-                pygame.mixer.music.load("./media/sound/opening.mp3")
+                pygame.mixer.music.load("./media/sound/choice.mp3")
                 pygame.mixer.music.play()
          
             if e.type == pygame.QUIT:

@@ -9,7 +9,7 @@ CONTROL_PIN2 = 18
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(CONTROL_PIN2, GPIO.OUT)
-
+GPIO.setwarnings(False)
 
 pwm2 = GPIO.PWM(CONTROL_PIN2, PWM_FREQ)
 pwm2.start(0)
@@ -21,26 +21,20 @@ def angle_to_duty_cycle(angle=0):
 try:
     print('Ctrl+c to stop the program')
     #motor 2 mouth
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(110))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(160))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(110))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(160))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(110))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(110))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(160))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(110))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(160))
-    time.sleep(0.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(110))
-    time.sleep(0.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(20))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(20))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(20))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
+    time.sleep(.3)
 
     while True:
         next
