@@ -4,12 +4,21 @@ import glob #get a list of files
 from random import shuffle # random question sequence
 from tinytag import TinyTag # access mp3 title
 import math #set question repeat time
+<<<<<<< HEAD
 import RPi.GPIO as GPIO #RFID + OLED
 from mfrc522 import SimpleMFRC522 #RFID
 from PIL import Image #OLED
 from PIL import ImageDraw #OLED
 from PIL import ImageFont #OLED
 import Adafruit_SSD1306 #OLED
+=======
+#import RPi.GPIO as GPIO #RFID + OLED
+#from mfrc522 import SimpleMFRC522 #RFID
+#from PIL import Image #OLED
+#from PIL import ImageDraw #OLED
+#from PIL import ImageFont #OLED
+#import Adafruit_SSD1306 #OLED
+>>>>>>> e4d13f34d8575c406e7403035246aed992bd7ce4
 import os # shutdown computer
 import time #set timeout to prevent RFID detect too many time
 from queue import Queue #Split the program to 2 threads
@@ -40,6 +49,7 @@ PWM_FREQ = 50
 def worker():
     while True:
         sleep(1000)
+<<<<<<< HEAD
     FONT_SIZE = 50
      disp = Adafruit_SSD1306.SSD1306_128_64(rst=0) #initialize the OLED
      reader = SimpleMFRC522() #Initializae the RFID
@@ -139,6 +149,107 @@ def worker():
              GPIO.cleanup()
              disp.clear()
              disp.display() #Display nothing to the OLED monitor (Clear)
+=======
+    # FONT_SIZE = 50
+    # disp = Adafruit_SSD1306.SSD1306_128_64(rst=0) #initialize the OLED
+    # reader = SimpleMFRC522() #Initializae the RFID
+    # disp.begin()
+    # disp.clear()
+    # disp.display()
+    # WIDTH = disp.width
+    # HEIGHT = disp.height
+    # led_font=ImageFont.truetype("/home/pi/Desktop/BME3S02/media/font/ARIALUNI.TTF", FONT_SIZE)
+
+
+    # #OLED
+    # def Eyes(check):
+    #     load = os.getloadavg()
+    #     image = Image.new('1', (WIDTH, HEIGHT))
+    #     draw = ImageDraw.Draw(image)
+    #     draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
+    #     if check == True:
+    #         draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
+    #         channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/success.wav'))
+    #         Motor_head(True)
+            
+    #     else:
+    #         draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
+    #         channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/fail.wav'))
+    #         Motor_head(False)
+
+    #     disp.image(image)
+    #     disp.display() #Display on OLED monitor
+    #     time.sleep(3) #Prevent user touch too frequently
+
+    # #motor_head
+    # def Motor_head(check):
+
+    #     pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
+    #     pwm.start(0)
+    #     def angle_to_duty_cycle(angle=0):
+    #         duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
+    #         return duty_cycle
+
+    #     if check == True:
+    #         next
+    #     else:
+    #         pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+    #         time.sleep(0.3)
+    #         pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
+    #         time.sleep(0.3)
+    #         pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
+    #         time.sleep(0.3)
+    #         pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
+    #         time.sleep(0.3)
+    #         pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
+    #         time.sleep(0.3)
+    #         pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+    #         time.sleep(0.3)
+    #     pwm.stop()
+
+    # #Change another question when correct/wrong
+    # def change_current_question():
+    #     global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
+    #     QUESTION_COUNT -= 1
+    #     CURRENT_QUESTION = QUESTION.pop(0)
+
+
+    # #Check whether the answer is correct or not
+    # def check_answer(ans):
+    #     if ans == int(CURRENT_QUESTION[40:-4]):
+    #         return True
+    #     else:
+    #         return False
+
+
+    # while True:
+    #     GPIO.setmode(GPIO.BCM) #Set the GPIO to BCM mode
+    #     GPIO.setup(CONTROL_PIN, GPIO.OUT)
+    #     print('COUNT', QUESTION_COUNT) #Still have ? questions
+    #     try:
+    #         id, text = reader.read() #RFID reading
+    #         sleep(0.3)
+    #         card = int(text) #Changing RFID text to integer
+    #         print(CURRENT_QUESTION[40:-4],card)
+    #         if check_answer(card): #Checking answer
+    #             print('correct')
+    #             global SCORE
+    #             SCORE += 1 #Add score
+    #             change_current_question() #Change question
+    #             Eyes(True) #show eyes image and play music
+                                
+    #         else:
+    #             print('wrong')
+    #             change_current_question()
+    #             Eyes(False)
+                
+    #     except:
+    #         print('', end='')
+    #     finally:
+    #         GPIO.cleanup()
+    #         disp.clear()
+    #         disp.display() #Display nothing to the OLED monitor (Clear)
+>>>>>>> e4d13f34d8575c406e7403035246aed992bd7ce4
 
 
 t = Thread(target=worker) #Set up the thread
