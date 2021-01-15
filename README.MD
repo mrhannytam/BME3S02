@@ -63,7 +63,7 @@ Project Structure:
 
 ## Production Reminder
 1. Change the quitgame() from DEV to PRODUCTION
-2. Rotate the computer screen 90 degree [HERE](https://www.debugpoint.com/2019/12/how-to-rotate-display-in-ubuntu-linux/)
+2. Rotate the computer screen 90 degree [HERE](https://www.debugpoint.com/2019/12/how-to-rotate-display-in-ubuntu-linux/) or "sudo nano /boot/config.txt"
 3. Adjust the screen size (DISPLAY_WIDTH and DISPLAY_HEIGHT)
 4. Run the script when computer boot [Method 1 HERE](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/)
 5. Dont use other methods especially /etc/profile!!! since the program runs 2 threads. This will make the computer like a SHIT. [RECOVER HERE 1](https://raspberrypi.stackexchange.com/questions/83369/how-to-stop-a-python-script-running-at-startup-by-default#:~:text=You%20can%20try%20spamming%20ALT,of%20the%20script%20execution%20command.), [RECOVER HERE 2](https://www.howtogeek.com/112888/3-ways-to-access-your-linux-partitions-from-windows/)
