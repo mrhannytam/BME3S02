@@ -56,43 +56,20 @@ CURRENT_STAGE = 'game_intro'
 def worker():
     def Eyes(check):
          def blink(iamge): # blink 3 times 
-             disp.image(image)
-             disp.display()
-             sleep(0.5)
-             disp.clear()
-             disp.display()
-             
-             disp.image(image)
-             disp.display()
-             sleep(0.5)
-             disp.clear()
-             disp.display()
-             
-             disp.image(image)
-             disp.display()
-             sleep(0.5)
-             disp.clear()
-             disp.display()
+             for i in range(3):
+                 disp.image(image)
+                 disp.display()
+                 sleep(0.5) # Blink blink time
+                 disp.clear()
+                 disp.display()
 
-         def slow_blink(iamge): # blink 3 times 
-             disp.image(image)
-             disp.display()
-             sleep(2) # Blink blink time
-             disp.clear()
-             disp.display()
-
-             disp.image(image)
-             disp.display()
-             sleep(2)
-             disp.clear()
-             disp.display()
-
-             disp.image(image)
-             disp.display()
-             sleep(2)
-             disp.clear()
-             disp.display()
-             
+         def slow_blink(iamge): # blink 3 times
+             for i in range(5):
+                 disp.image(image)
+                 disp.display()
+                 sleep(2) # Blink blink time
+                 disp.clear()
+                 disp.display()
              
          load = os.getloadavg()
          image = Image.new('1', (WIDTH, HEIGHT))
@@ -195,7 +172,7 @@ def worker():
          
     while True:
         #print(CURRENT_QUESTION)
-        global CURRENT_STAGE
+        #global CURRENT_STAGE
         print(CURRENT_STAGE)
         if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
              Eyes('intro')
@@ -205,10 +182,19 @@ def worker():
             sleep(0.3)
             card = int(text)
             print('Current Question number is: ', CURRENT_QUESTION[40:-4], 'Tapped number is: ', card)
+            
+                            
+            ans_sound = CURRENT_QUESTION
+            ans_sound = ans_sound.replace('question', 'ans').replace('questionH', 'ans')
+            ans_sound = ans_sound.replace(CURRENT_QUESTION[40:-4], str(card)).replace('mp3', 'wav')
+            print(ans_sound)
+    
             if check_answer(card): #Checking answer
-                #print('correct')
                 SCORE += 1 #Add score
                 change_current_question() #Change question
+                
+                channel1.play(pygame.mixer.Sound(ans_sound))
+                sleep(3)
                 
                 t = Thread(target=shake_head) #Set up the thread
                 t.daemon = True        
@@ -216,14 +202,10 @@ def worker():
                 Eyes('True') #show eyes image and play music
                 
             else:
-                #print('wrong')
                 change_current_question()
-                
-                ans_sound = CURRENT_QUESTION
-                ans_sound = ans_sound.replace('question', 'ans').replace('questionH', 'ans').replace(CURRENT_QUESTION[40:-4], str(card))
-                print(ans_sound)
-                pygame.mixer.music.load(ans_sound)
-                pygame.mixer.music.play()
+
+                channel1.play(pygame.mixer.Sound(ans_sound))
+                sleep(3)
                 
                 t = Thread(target=shake_head) #Set up the thread
                 t.daemon = True
@@ -273,8 +255,8 @@ pygame.time.set_timer(PLAYSOUNDEVENT, 1000) #Play question mp3 every 1s
 
 
 #Define the text in the shade area(button)
-def text_objects(text, font):
-    textSurface = font.render(text, True, (0,0,0))
+def text_objects(text, font, color=BLACK):
+    textSurface = font.render(text, True, color)
     return textSurface, textSurface.get_rect()
 
 
@@ -287,13 +269,10 @@ def button(msg, x, y, w, h, ic , ac, action = None, parameter = None):
     if x+w > mouse[0] > x and y+h > mouse[1] > y:
         pygame.draw.rect(screen, ac,(x,y,w,h))
         if click[0] == 1 and action != None:
-            #print('i click', action)
             sleep(0.3) #Prevent click too fast 
             if parameter == None: #Check parameter, otherwise all function with parameter will be click automatically
-                #print('This is no parameter')
                 action()
             else:
-                #print('This is parameter')
                 action(parameter)
             pygame.display.flip()
 
@@ -312,10 +291,8 @@ def game_intro():
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
                 intro_sound = glob.glob('/home/pi/Desktop/BME3S02/media/sound/opening/*.mp3')
-                #print(intro_sound)
                 intro_sound = choice(intro_sound)
                 pygame.mixer.music.load(intro_sound)
-                #pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening/opening1.mp3")
                 pygame.mixer.music.play()
          
             if e.type == pygame.QUIT:
@@ -396,9 +373,9 @@ def game_loop(difficult = None):
     SCORE = 0
 
     # Set countign time and event
-    counter, time = 30, '30'.rjust(3) #SET COUNT TIME
+    counter, time = 3, '3'.rjust(3) #SET COUNT TIME
     COUNTTIMEEVENT = pygame.USEREVENT + 1 #Define count time event
-    pygame.time.set_timer(COUNTTIMEEVENT, 1000) #The count time event repeat every 1s
+    pygame.time.set_timer(COUNTTIMEEVENT, 1500) #The count time event repeat every 1s
 
     # Load the first question before while loop
     quest = CURRENT_QUESTION #Get the first question before loping
@@ -497,9 +474,7 @@ def game_end():
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy() and len(score_sound) == 1:
                 pygame.mixer.music.load(score_sound.pop(0))
                 pygame.mixer.music.play()
-                
-
-                    
+                                   
             if e.type == pygame.QUIT:
                         quitgame()
 
@@ -508,29 +483,21 @@ def game_end():
         if SCORE > 10: #Show different label to the elderly according to their score
             TEXT = "十分好!!!"
             COLOR = BRIGHT_GREEN
-            #pygame.mixer.music.load('/home/pi/Desktop/BME3S02/media/sound/vgood.mp3')
-            #pygame.mixer.music.play()
             
         elif SCORE > 5:
             TEXT = "做得好!"
             COLOR = GREEN
-            #pygame.mixer.music.load('/home/pi/Desktop/BME3S02/media/sound/good.mp3')
-            #pygame.mixer.music.play()
             
         elif SCORE > 1:
             TEXT = "不錯哦~"
             COLOR = GREEN
-            #pygame.mixer.music.load('/home/pi/Desktop/BME3S02/media/sound/good.mp3')
-            #pygame.mixer.music.play()
             
         else:
             TEXT = "再接再勵~"
             COLOR = RED
-            #pygame.mixer.music.load('/home/pi/Desktop/BME3S02/media/sound/again.mp3')
-            #pygame.mixer.music.play()
             
         #Show the cheer up response to the elderly
-        textSurf, textRect = text_objects(TEXT, font)
+        textSurf, textRect = text_objects(TEXT, font, COLOR)
         textRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
         screen.blit(textSurf, textRect)
 

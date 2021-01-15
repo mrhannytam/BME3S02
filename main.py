@@ -1,9 +1,7 @@
-#  -*- coding: utf-8 -*-
-
 import sys, pygame #pygame game logic
 from time import sleep #hard coding
 import glob #get a list of files
-from random import shuffle # random question sequence
+from random import shuffle, choice # random question sequence
 from tinytag import TinyTag # access mp3 title
 import math #set question repeat time
 import RPi.GPIO as GPIO #RFID + OLED
@@ -17,100 +15,109 @@ import time #set timeout to prevent RFID detect too many time
 from queue import Queue #Split the program to 2 threads
 from threading import Thread #Split the program to 2 threads
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
-#Global parameter
-QUESTION = []#glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
-print(QUESTION)
-QUESTION_COUNT = len(QUESTION)
-#shuffle(QUESTION)
-CURRENT_QUESTION = ""
-CURRENT_QUESTION_IMAGE = ""
-SCORE = 0
-print(QUESTION_COUNT)
-
-#Define a channel to prevent sound interrupt between question and sound effect
-pygame.mixer.init(frequency = 44100, size = -16, channels = 1, buffer = 2**12)
-channel1 = pygame.mixer.Channel(0)
-
-#Define a quueue for thread queuing
-q = Queue()
-
+'''GPIO Initialization'''
+GPIO.setwarnings(False)
 CONTROL_PIN = 17
 CONTROL_PIN2 = 18
 PWM_FREQ = 50
+GPIO.setmode(GPIO.BCM) #Set the GPIO to BCM mode
+GPIO.setup(CONTROL_PIN, GPIO.OUT) #for motor_head
+GPIO.setup(CONTROL_PIN2, GPIO.OUT) #for motor_mouth
 
-#GPIO Control (for software threads)
+FONT_SIZE = 50
+disp = Adafruit_SSD1306.SSD1306_128_64(rst=0) #initialize the OLED
+reader = SimpleMFRC522() #Initializae the RFID
+disp.begin()
+disp.clear()
+disp.display()
+WIDTH = disp.width
+HEIGHT = disp.height
+led_font=ImageFont.truetype("/home/pi/Desktop/BME3S02/media/font/ARIALUNI.TTF", FONT_SIZE)
+'''GPIO Initialization'''
+
+
+'''QUESTION Initialization'''
+QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
+QUESTION_COUNT = len(QUESTION)
+shuffle(QUESTION)
+CURRENT_QUESTION = QUESTION.pop(0)
+SCORE = 0
+card = 0
+'''QUESTION Initialization'''
+
+
+'''Pygame Initialization'''
+pygame.mixer.init(frequency = 44100, size = -16, channels = 1, buffer = 2**12)
+channel1 = pygame.mixer.Channel(0)
+channel2 = pygame.mixer.Channel(1)
+CURRENT_STAGE = 'game_intro'
+'''Pygame Initialization'''
+
 def worker():
-    FONT_SIZE = 50
-    disp = Adafruit_SSD1306.SSD1306_128_64(rst=0) #initialize the OLED
-    reader = SimpleMFRC522() #Initializae the RFID
-    disp.begin()
-    disp.clear()
-    disp.display()
-    WIDTH = disp.width
-    HEIGHT = disp.height
-    led_font=ImageFont.truetype("/home/pi/Desktop/BME3S02/media/font/ARIALUNI.TTF", FONT_SIZE)
-
-
-    #OLED
     def Eyes(check):
-        load = os.getloadavg()
-        image = Image.new('1', (WIDTH, HEIGHT))
-        draw = ImageDraw.Draw(image)
-        draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
-        
-        if check == True:
-            draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
-            channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/success.wav'))
-            Motor_head(True)
-            Motor_mouth(False)
-            
-        elif check == False:
-            draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
-            channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/fail.wav'))
-            Motor_head(False)
-            Motor_mouth(True)
-<<<<<<< HEAD
+         def blink(iamge): # blink 3 times 
+             for i in range(3):
+                 disp.image(image)
+                 disp.display()
+                 sleep(0.5) # Blink blink time
+                 disp.clear()
+                 disp.display()
 
-        elif check == 2:
-            draw.text((43, 0), 'H',  font=led_font, fill=255) #Draw 'X' on OLED monitor
-=======
+         def slow_blink(iamge): # blink 3 times
+             for i in range(5):
+                 disp.image(image)
+                 disp.display()
+                 sleep(2) # Blink blink time
+                 disp.clear()
+                 disp.display()
+             
+         load = os.getloadavg()
+         image = Image.new('1', (WIDTH, HEIGHT))
+         draw = ImageDraw.Draw(image)
+         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
+         if check == 'True':
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound/success.wav'))
+             draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
+             blink(image)         
             
->>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
-
-        disp.image(image)
-        disp.display() #Display on OLED monitor
-        time.sleep(3) #Prevent user touch too frequently
+         elif check == 'False':
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound/fail.wav'))
+             draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
+             blink(image)
+             
+         elif check == 'intro':
+             random_eyes = ['^', '=', '*', 'O', 'X']
+             random_eyes = choice(random_eyes)
+             #print(random_eyes)             
+             draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
+             slow_blink(image)
 
     #motor_head
     def Motor_head(check):
 
-        pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
-        pwm.start(0)
-        def angle_to_duty_cycle(angle=0):
-            duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
-            return duty_cycle
+         pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
+         pwm.start(0)
+         def angle_to_duty_cycle(angle=0):
+             duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
+             return duty_cycle
 
-        if check == True:
-            next
-        else:
-            pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
-            time.sleep(0.3)
-            pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
-            time.sleep(0.3)
-            pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
-            time.sleep(0.3)
-            pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
-            time.sleep(0.3)
-            pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
-            time.sleep(0.3)
-            pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
-            time.sleep(0.3)
-        pwm.stop()
-            
+         if check == True:
+             next
+         else:
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+             time.sleep(0.3)
+         pwm.stop()
+
     #motor_mouth
     def Motor_mouth(check):
 
@@ -124,124 +131,94 @@ def worker():
             next
         else:
             #motor_mouth
-<<<<<<< HEAD
             pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
-            time.sleep(.5)
+            time.sleep(0.5)
             pwm2.ChangeDutyCycle(angle_to_duty_cycle2(75))
-            time.sleep(.5)
+            time.sleep(0.5)
             pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
-            time.sleep(.5)
+            time.sleep(0.5)
             pwm2.ChangeDutyCycle(angle_to_duty_cycle2(75))
-            time.sleep(.5)
+            time.sleep(0.5)
             pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
-            time.sleep(.5)
-
-
-        pwm2.stop()
-=======
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
-            time.sleep(.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
-            time.sleep(.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
-            time.sleep(.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(.3)
+            time.sleep(0.5)
 
         pwm2.stop()
 
->>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
-
-    #Change another question when correct/wrong
+     #Change another question when correct/wrong
     def change_current_question():
-        global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
-        QUESTION_COUNT -= 1
-        CURRENT_QUESTION = QUESTION.pop(0)
+         global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
+         QUESTION_COUNT -= 1
+         CURRENT_QUESTION = QUESTION.pop(0)
 
 
-    #Check whether the answer is correct or not
+     #Check whether the answer is correct or not
     def check_answer(ans):
-        eyes_stage(False)
-        
-        if ans == int(CURRENT_QUESTION[40:-4]):
-            return True
-        else:
-            return False
+         if ans == int(CURRENT_QUESTION[40:-4]):
+             return True
+         else:
+             return False
 
 
+    # Combine two function of motor
+    def shake_head(): 
+        check = check_answer(card)
+        if check == True:
+            Motor_head(True)
+            Motor_mouth(False)
+        elif check == False:
+            Motor_head(False)
+            Motor_mouth(True)    
+         
+         
     while True:
-        GPIO.setmode(GPIO.BCM) #Set the GPIO to BCM mode
-        GPIO.setup(CONTROL_PIN, GPIO.OUT) #for motor_head
-        GPIO.setup(CONTROL_PIN2, GPIO.OUT) #for motor_mouth
-        print('COUNT', QUESTION_COUNT) #Still have ? questions
-<<<<<<< HEAD
-        eyes_stage(True)
-
-        def eyes_stage(check):
-        
-            if check == True:
-                Eyes(2)
+        #print(CURRENT_QUESTION)
+        #global CURRENT_STAGE
+        print(CURRENT_STAGE)
+        if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
+             Eyes('intro')
             
-            else:
-                try:
-                    id, text = reader.read() #RFID reading
-                    sleep(0.3)
-                    card = int(text) #Changing RFID text to integer
-                    print(CURRENT_QUESTION[40:-4],card)
-                    if check_answer(card): #Checking answer
-                        print('correct')
-                        global SCORE
-                        SCORE += 1 #Add score
-                        change_current_question() #Change question
-                        Eyes(True) #show eyes image and play music
-                                            
-                    else:
-                        print('wrong')
-                        Eyes(False)
-                    
-                             
-                except:
-                    print('', end =='')
-                finally:
-                    GPIO.cleanup()
-                    disp.clear()
-                    disp.display() #Display nothing to the OLED monitor (Clear)
-=======
-        try:
-            id, text = reader.read() #RFID reading
+        elif CURRENT_STAGE == 'game_loop':
+            id, text = reader.read()
             sleep(0.3)
-            card = int(text) #Changing RFID text to integer
-            print(CURRENT_QUESTION[40:-4],card)
+            card = int(text)
+            print('Current Question number is: ', CURRENT_QUESTION[40:-4], 'Tapped number is: ', card)
+            
+                            
+            ans_sound = CURRENT_QUESTION
+            ans_sound = ans_sound.replace('question', 'ans').replace('questionH', 'ans')
+            ans_sound = ans_sound.replace(CURRENT_QUESTION[40:-4], str(card)).replace('mp3', 'wav')
+            print(ans_sound)
+    
             if check_answer(card): #Checking answer
-                print('correct')
-                global SCORE
                 SCORE += 1 #Add score
                 change_current_question() #Change question
-                Eyes(True) #show eyes image and play music
-                                
-            else:
-                print('wrong')
-                Eyes(False)
                 
-                             
-        except:
-            print('', end =='')
-        finally:
-            GPIO.cleanup()
+                channel1.play(pygame.mixer.Sound(ans_sound))
+                sleep(3)
+                
+                t = Thread(target=shake_head) #Set up the thread
+                t.daemon = True        
+                t.start() #Start spliting the program into 2 threads
+                Eyes('True') #show eyes image and play music
+                
+            else:
+                change_current_question()
+
+                channel1.play(pygame.mixer.Sound(ans_sound))
+                sleep(3)
+                
+                t = Thread(target=shake_head) #Set up the thread
+                t.daemon = True
+                t.start() #Start spliting the program into 2 threads
+                Eyes('False')
+
             disp.clear()
             disp.display() #Display nothing to the OLED monitor (Clear)
->>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
 
 
-t = Thread(target=worker) #Set up the thread
-t.daemon = True
-t.start() #Start spliting the program into 2 threads
+gpio_thread = Thread(target=worker) #Set up the thread
+gpio_thread.daemon = True
+gpio_thread.start() #Start spliting the program into 2 threads
 
 
 #PYGAME (Game logic part)
@@ -251,13 +228,13 @@ pygame.mixer.init()
 
 
 #Pygame parameter
-DISPLAY_WIDTH = 480 #Define LCD monitor width
-DISPLAY_HEIGHT = 640 #Define LCD monitor height
+DISPLAY_WIDTH = 500 #Define LCD monitor width
+DISPLAY_HEIGHT = 700 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 HARD_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + EASY_BUTTON_POSITION_X * 2
-font = pygame.font.Font('/home/pi/Desktop/BME3S02/media/font/mnjzbh.ttf', 62)
+font = pygame.font.Font('/home/pi/Desktop/BME3S02/media/font/mnjzbh.ttf', 30)
 
 
 
@@ -276,9 +253,10 @@ clock = pygame.time.Clock() #initialize the clock
 PLAYSOUNDEVENT = pygame.USEREVENT + 2 #Define sound event
 pygame.time.set_timer(PLAYSOUNDEVENT, 1000) #Play question mp3 every 1s
 
+
 #Define the text in the shade area(button)
-def text_objects(text, font):
-    textSurface = font.render(text, True, (0,0,0))
+def text_objects(text, font, color=BLACK):
+    textSurface = font.render(text, True, color)
     return textSurface, textSurface.get_rect()
 
 
@@ -291,36 +269,30 @@ def button(msg, x, y, w, h, ic , ac, action = None, parameter = None):
     if x+w > mouse[0] > x and y+h > mouse[1] > y:
         pygame.draw.rect(screen, ac,(x,y,w,h))
         if click[0] == 1 and action != None:
-            #print(action.__name__)
-            #action()
-            #pygame.display.flip()
-            print('i click', action)
             sleep(0.3) #Prevent click too fast 
             if parameter == None: #Check parameter, otherwise all function with parameter will be click automatically
-                print('This is no parameter')
                 action()
             else:
-                print('This is parameter')
                 action(parameter)
             pygame.display.flip()
 
     else:
         pygame.draw.rect(screen, ic,(x,y,w,h))
 
-    #smallText = pygame.font.Font("freesansbold.ttf",20)
     textSurf, textRect = text_objects(msg, font)
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
     screen.blit(textSurf, textRect)
 
-
 #Game introduction, showing hello
 def game_intro():
-    intro = True
+    global CURRENT_STAGE
+    CURRENT_STAGE = 'game_intro'
     while True:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
-                #pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening/opening.mp3")
-                pygame.mixer.music.load("./media/sound/opening/opening1.mp3")
+                intro_sound = glob.glob('/home/pi/Desktop/BME3S02/media/sound/opening/*.mp3')
+                intro_sound = choice(intro_sound)
+                pygame.mixer.music.load(intro_sound)
                 pygame.mixer.music.play()
          
             if e.type == pygame.QUIT:
@@ -340,12 +312,15 @@ def game_intro():
         pygame.display.flip() # Update the display screen
         clock.tick(60) #Update the display screen
 
+
 def difficulty():
+    global CURRENT_STAGE
+    CURRENT_STAGE = 'difficulty'
+    pygame.mixer.music.stop()
     while True:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
-                #pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/opening.mp3")
-                pygame.mixer.music.load("./media/sound/choice.mp3")
+                pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/choice.mp3")
                 pygame.mixer.music.play()
          
             if e.type == pygame.QUIT:
@@ -369,30 +344,38 @@ def difficulty():
         clock.tick(60) #Update the display screen
 
 
+def udpateScore(): #For Testing
+    global SCORE, CURRENT_QUESTION, QUESTION_COUNT
+    SCORE += 1
+    QUESTION_COUNT -= 1
+    if QUESTION_COUNT != 0:
+        CURRENT_QUESTION = QUESTION.pop(0)
+    else:
+        game_end()
 
 #Main game logic
 def game_loop(difficult = None):
-    print('Here is game loop, the difficultly is ', difficult)
+    global CURRENT_STAGE
+    CURRENT_STAGE = 'game_loop'
+    #print('Here is game loop, the difficultly is ', difficult)
     #Access the global parameter for accessing game resources (First start + Restart)
     global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, CURRENT_QUESTION_IMAGE, SCORE
-    
+
     if difficult == 'easy':
         QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
-        #QUESTION = glob.glob("./media/question/*.mp3")
     elif difficult == 'hard':
         QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/questioH/*.mp3")
-        #QUESTION = glob.glob("./media/questioH/*.mp3")
-    #print(QUESTION)
 
+    # Re-initilize global data 
     QUESTION_COUNT = len(QUESTION)
     shuffle(QUESTION)
     CURRENT_QUESTION = QUESTION.pop(0)
     SCORE = 0
 
     # Set countign time and event
-    counter, time = 100, '100'.rjust(3) #SET COUNT TIME
+    counter, time = 3, '3'.rjust(3) #SET COUNT TIME
     COUNTTIMEEVENT = pygame.USEREVENT + 1 #Define count time event
-    pygame.time.set_timer(COUNTTIMEEVENT, 1000) #The count time event repeat every 1s
+    pygame.time.set_timer(COUNTTIMEEVENT, 1500) #The count time event repeat every 1s
 
     # Load the first question before while loop
     quest = CURRENT_QUESTION #Get the first question before loping
@@ -400,14 +383,13 @@ def game_loop(difficult = None):
     pygame.mixer.music.play() #Play the question music
     tag = TinyTag.get(quest) #Get the mp3 file metadata (question)
     quest_text = tag.title
-
     if difficult == 'easy':
         temp = quest
         CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('question', 'game_image')
     elif difficult == 'hard':
         temp = quest
         CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('questioH', 'game_image_hard')
-    print(quest, CURRENT_QUESTION_IMAGE, QUESTION_COUNT)
+    print('The question is :',quest, '; The question image is: ', CURRENT_QUESTION_IMAGE, '; Number of question left: ', QUESTION_COUNT)
     
 
     while True:
@@ -427,10 +409,12 @@ def game_loop(difficult = None):
                 if difficult == 'easy':
                     temp = quest
                     CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('question', 'game_image')
+
                 elif difficult == 'hard':
                     temp = quest
                     CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('questioH', 'game_image_hard')
-                print(quest, CURRENT_QUESTION_IMAGE, QUESTION_COUNT)
+                
+                print('The question is :',quest, '; The question image is: ', CURRENT_QUESTION_IMAGE, '; Number of question left: ', QUESTION_COUNT)
 
             if e.type == pygame.QUIT: #Close the computer event
                 quitgame()
@@ -451,15 +435,9 @@ def game_loop(difficult = None):
         quest_image = pygame.image.load(CURRENT_QUESTION_IMAGE)
         screen.blit(quest_image,((DISPLAY_WIDTH / 5), (DISPLAY_HEIGHT/2.5)))
 
-        #pass question
-        button("跳過", 0, 0, 140, 65, RED, BRIGHT_RED, pass_ans)
-<<<<<<< HEAD
+        #button("TEST", 0, 0, 120, 50, RED, BRIGHT_RED, udpateScore)
 
 
-
-=======
-            
->>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
         if QUESTION_COUNT == 0: #End game if the number of question is 0
             game_end()
 
@@ -469,51 +447,57 @@ def game_loop(difficult = None):
         pygame.display.flip()
         clock.tick(60)
 
-#pass
-
-def pass_ans():
-    global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
-    QUESTION_COUNT -= 1
-    CURRENT_QUESTION = QUESTION.pop(0)
-
 
 #End game
 def game_end():
-    pygame.mixer.music.load('/home/pi/Desktop/BME3S02/media/sound/timesup.mp3')
+    global CURRENT_STAGE
+    CURRENT_STAGE = 'game_end'
+    end_sound = glob.glob('/home/pi/Desktop/BME3S02/media/sound/timesup/*.mp3')
+    end_sound = choice(end_sound)
+    #print(end_sound)
+    pygame.mixer.music.load(end_sound)   
     pygame.mixer.music.play()
     TEXT = ""
     COLOR = (0,0,0)
+    
+    if SCORE > 10:
+        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/vgood.mp3']
+    elif SCORE > 5:
+        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/good.mp3']
+    elif SCORE > 1:
+        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/good.mp3']
+    else:
+        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/again.mp3']
+        
     while True:
         for e in pygame.event.get():
+            if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy() and len(score_sound) == 1:
+                pygame.mixer.music.load(score_sound.pop(0))
+                pygame.mixer.music.play()
+                                   
             if e.type == pygame.QUIT:
-                quitgame()
+                        quitgame()
 
-        screen.fill(WHITE)
+        screen.fill(WHITE)  
 
-        #TODO: implement the text color in the text function, lazy to do
         if SCORE > 10: #Show different label to the elderly according to their score
             TEXT = "十分好!!!"
-            #pygame.mixer.music.load('./media/sound/vgood.mp3')
-            #pygame.mixer.music.play()
             COLOR = BRIGHT_GREEN
-
+            
         elif SCORE > 5:
             TEXT = "做得好!"
-            #pygame.mixer.music.load('./media/sound/good.mp3')
-            #pygame.mixer.music.play()
             COLOR = GREEN
-
+            
         elif SCORE > 1:
             TEXT = "不錯哦~"
             COLOR = GREEN
+            
         else:
             TEXT = "再接再勵~"
-            #pygame.mixer.music.load('./media/sound/again.mp3')
-            #pygame.mixer.music.play()
             COLOR = RED
-
+            
         #Show the cheer up response to the elderly
-        textSurf, textRect = text_objects(TEXT, font)
+        textSurf, textRect = text_objects(TEXT, font, COLOR)
         textRect.center = (DISPLAY_WIDTH / 2), (DISPLAY_HEIGHT/2)
         screen.blit(textSurf, textRect)
 
@@ -524,9 +508,7 @@ def game_end():
 
         button("開始", START_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 140, 65, GREEN, BRIGHT_GREEN, difficulty)
         button("關機", QUIT_BUTTON_POSITION_X, DISPLAY_HEIGHT/1.5, 140, 65, RED, BRIGHT_RED, quitgame)
-
-
-       
+        
         pygame.display.flip()
         clock.tick(60)
 
@@ -541,11 +523,17 @@ def game_end():
 #Quit game function (DEV)
 def quitgame():
     pygame.quit()
+    disp.clear()
     quit()
 
 
 #Run the game introduction loop
 #Close the program if introduction loop break
+
+
+#worker()
 game_intro()
 pygame.quit()
 quit()
+
+
