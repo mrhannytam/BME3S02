@@ -17,7 +17,10 @@ import time #set timeout to prevent RFID detect too many time
 from queue import Queue #Split the program to 2 threads
 from threading import Thread #Split the program to 2 threads
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
 #Global parameter
 QUESTION = []#glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
 print(QUESTION)
@@ -70,9 +73,13 @@ def worker():
             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/fail.wav'))
             Motor_head(False)
             Motor_mouth(True)
+<<<<<<< HEAD
 
         elif check == 2:
             draw.text((43, 0), 'H',  font=led_font, fill=255) #Draw 'X' on OLED monitor
+=======
+            
+>>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
 
         disp.image(image)
         disp.display() #Display on OLED monitor
@@ -117,6 +124,7 @@ def worker():
             next
         else:
             #motor_mouth
+<<<<<<< HEAD
             pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
             time.sleep(.5)
             pwm2.ChangeDutyCycle(angle_to_duty_cycle2(75))
@@ -130,6 +138,25 @@ def worker():
 
 
         pwm2.stop()
+=======
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(20))
+            time.sleep(.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(.3)
+
+        pwm2.stop()
+
+>>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
 
     #Change another question when correct/wrong
     def change_current_question():
@@ -153,6 +180,7 @@ def worker():
         GPIO.setup(CONTROL_PIN, GPIO.OUT) #for motor_head
         GPIO.setup(CONTROL_PIN2, GPIO.OUT) #for motor_mouth
         print('COUNT', QUESTION_COUNT) #Still have ? questions
+<<<<<<< HEAD
         eyes_stage(True)
 
         def eyes_stage(check):
@@ -184,6 +212,31 @@ def worker():
                     GPIO.cleanup()
                     disp.clear()
                     disp.display() #Display nothing to the OLED monitor (Clear)
+=======
+        try:
+            id, text = reader.read() #RFID reading
+            sleep(0.3)
+            card = int(text) #Changing RFID text to integer
+            print(CURRENT_QUESTION[40:-4],card)
+            if check_answer(card): #Checking answer
+                print('correct')
+                global SCORE
+                SCORE += 1 #Add score
+                change_current_question() #Change question
+                Eyes(True) #show eyes image and play music
+                                
+            else:
+                print('wrong')
+                Eyes(False)
+                
+                             
+        except:
+            print('', end =='')
+        finally:
+            GPIO.cleanup()
+            disp.clear()
+            disp.display() #Display nothing to the OLED monitor (Clear)
+>>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
 
 
 t = Thread(target=worker) #Set up the thread
@@ -400,9 +453,13 @@ def game_loop(difficult = None):
 
         #pass question
         button("跳過", 0, 0, 140, 65, RED, BRIGHT_RED, pass_ans)
+<<<<<<< HEAD
 
 
 
+=======
+            
+>>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
         if QUESTION_COUNT == 0: #End game if the number of question is 0
             game_end()
 
