@@ -234,8 +234,8 @@ pygame.mixer.init()
 
 
 #Pygame parameter
-DISPLAY_WIDTH = 500 #Define LCD monitor width
-DISPLAY_HEIGHT = 700 #Define LCD monitor height
+DISPLAY_WIDTH = 480 #Define LCD monitor width
+DISPLAY_HEIGHT = 640 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
@@ -477,7 +477,7 @@ def game_end():
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/vgood.mp3']
     elif SCORE > 5:
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
-    elif SCORE > 1:
+    elif SCORE >= 1:
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
     else:
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/again.mp3']
@@ -501,7 +501,7 @@ def game_end():
             TEXT = "做得好!"
             COLOR = GREEN
             
-        elif SCORE > 1:
+        elif SCORE >= 1:
             TEXT = "不錯哦~"
             COLOR = GREEN
             
