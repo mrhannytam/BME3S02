@@ -54,7 +54,7 @@ def worker():
 
     #OLED
     def Eyes(check):
-        load = os.getloadavg()
+        #load = os.getloadavg()
         image = Image.new('1', (WIDTH, HEIGHT))
         draw = ImageDraw.Draw(image)
         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
