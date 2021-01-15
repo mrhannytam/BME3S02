@@ -99,12 +99,12 @@ def worker():
          draw = ImageDraw.Draw(image)
          draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
          if check == 'True':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/success.wav'))
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound/success.wav'))
              draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
              blink(image)         
             
          elif check == 'False':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound2/fail.wav'))
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound/fail.wav'))
              draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
              blink(image)
              
@@ -218,7 +218,13 @@ def worker():
             else:
                 #print('wrong')
                 change_current_question()
-                       
+                
+                ans_sound = CURRENT_QUESTION
+                ans_sound = ans_sound.replace('question', 'ans').replace('questionH', 'ans').replace(CURRENT_QUESTION[40:-4], str(card))
+                print(ans_sound)
+                pygame.mixer.music.load(ans_sound)
+                pygame.mixer.music.play()
+                
                 t = Thread(target=shake_head) #Set up the thread
                 t.daemon = True
                 t.start() #Start spliting the program into 2 threads
@@ -390,7 +396,7 @@ def game_loop(difficult = None):
     SCORE = 0
 
     # Set countign time and event
-    counter, time = 10, '10'.rjust(3) #SET COUNT TIME
+    counter, time = 30, '30'.rjust(3) #SET COUNT TIME
     COUNTTIMEEVENT = pygame.USEREVENT + 1 #Define count time event
     pygame.time.set_timer(COUNTTIMEEVENT, 1000) #The count time event repeat every 1s
 
