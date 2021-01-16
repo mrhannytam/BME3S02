@@ -14,7 +14,8 @@
 
 ## Download
 ```
-git clone https://github.com/mrhannytam/BME3S02.git
+cd ~/Desktop/
+git clone https://github.com/mrhannytam/Doll_Therapy.git
 ```
 
 ## Introduction
