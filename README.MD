@@ -14,8 +14,12 @@
 
 ## Download
 ```
+sudo apt-get update
+sudo apt-get upgrade
+pip3 install tinytag RPi.GPIO mfrc522 Adafruit-SSD1306
 cd ~/Desktop/
 git clone https://github.com/mrhannytam/Doll_Therapy.git
+python3 /home/pi/Desktop/Doll_Therapy/main.py
 ```
 
 ## Introduction
