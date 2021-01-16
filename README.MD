@@ -3,7 +3,7 @@
 ## Hardware Requirement
 1. Raspberry pi
 2. RC522
-3. 12864 OLED
+3. 128*64 OLED
 
 
 ## Software Requirement
@@ -34,10 +34,12 @@ Project Structure:
 8. media
     * font 
     * image (For further development)
-    * question (All mp3 question audio)
-    * sound (Abandoned)
-    * question 2 (For testing)
-    * sound 2 (Sound effect)
+    * question (Easy question mp3)
+    * questionH (Hard question mp3)
+    * game_image (Easy question image)
+    * game_image_hard (Hard question image)
+    * ans(All answer wav)
+    * sound (sound effect)
 
 
 ## Main Program
@@ -48,17 +50,23 @@ Project Structure:
 * Each threads access the global variables
     * QUESTION (A list contain all questions' mp3 path)
     * CURRENT_QUESTION (Sored the current question's mp3 path)
-    * SCORE
+    * SCORE (Marks)
+    * card (Received IC card value)
+    * HOLD (Answer the question until correct)
 
 * GPIO Control Functions
     * Eyes(bool) -> Control OLED monitor + play sound effect
+    * Motor_head(bool) -> Control robot head
+    * Motor_mouth(bool) -> Contorl robot mouth
+    * shake_head(bool) -> Control robot head and mouth at the same time
     * change_current_question() -> Change CURRENT_QUESTION
     * check_answer(int) -> Check the content of IC Card == mp3 file name
 
 * Pygame Game Control Functions
     * button(str, int, int, int, int, tuple, tuple, function) -> Define a button with action
-    * text_objects(str, pygame.font.Font) -> Define a Text
+    * text_objects(str, pygame.font.Font, tuple) -> Define a Text
     * game_intro() -> Welcome Page
+    * difficulty() -> Choose difficulty
     * game_loop() -> Main game logic
     * game_end() -> End game Page
     * quitgame() -> Quit entire game
