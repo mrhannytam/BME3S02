@@ -32,17 +32,18 @@ disp.clear()
 disp.display()
 WIDTH = disp.width
 HEIGHT = disp.height
-led_font=ImageFont.truetype("/home/pi/Desktop/BME3S02/media/font/ARIALUNI.TTF", FONT_SIZE)
+led_font=ImageFont.truetype("/home/pi/Desktop/Doll_Therapy/media/font/ARIALUNI.TTF", FONT_SIZE)
 '''GPIO Initialization'''
 
 
 '''QUESTION Initialization'''
-QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
+QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/question/*.mp3")
 QUESTION_COUNT = len(QUESTION)
 shuffle(QUESTION)
 CURRENT_QUESTION = QUESTION.pop(0)
 SCORE = 0
 card = 0
+HOLD = False
 '''QUESTION Initialization'''
 
 
@@ -76,12 +77,12 @@ def worker():
          draw = ImageDraw.Draw(image)
          draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
          if check == 'True':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound/success.wav'))
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/success.wav'))
              draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
              blink(image)         
             
          elif check == 'False':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/BME3S02/media/sound/fail.wav'))
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/fail.wav'))
              draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
              blink(image)
              
@@ -153,10 +154,13 @@ def worker():
 
      #Check whether the answer is correct or not
     def check_answer(ans):
-         if ans == int(CURRENT_QUESTION[40:-4]):
-             return True
-         else:
-             return False
+        try:
+            if ans == int(CURRENT_QUESTION[45:-4]):
+                return True
+            else:
+                return False
+        except:
+            return False
 
 
     # Combine two function of motor
@@ -164,10 +168,10 @@ def worker():
         Motor_head(True)
         Motor_mouth(False)
 
-
     def shake_head_wrong():
         Motor_head(False)
-        Motor_mouth(True)              
+        Motor_mouth(True)    
+         
          
     while True:
         #print(CURRENT_QUESTION)
@@ -180,15 +184,16 @@ def worker():
             id, text = reader.read()
             sleep(0.3)
             card = int(text)
-            print('Current Question number is: ', CURRENT_QUESTION[40:-4], 'Tapped number is: ', card)
+            print('Current Question number is: ', CURRENT_QUESTION[45:-4], 'Tapped number is: ', card)
             
                             
             ans_sound = CURRENT_QUESTION
             ans_sound = ans_sound.replace('question', 'ans').replace('questionH', 'ans')
-            ans_sound = ans_sound.replace(CURRENT_QUESTION[40:-4], str(card)).replace('mp3', 'wav')
-            print(ans_sound)
+            ans_sound = ans_sound.replace(CURRENT_QUESTION[45:-4], str(card)).replace('mp3', 'wav')
+            print('Playing answer sound:', ans_sound)
     
             if check_answer(card): #Checking answer
+                global SCORE
                 SCORE += 1 #Add score
                 change_current_question() #Change question
                 
@@ -201,7 +206,8 @@ def worker():
                 Eyes('True') #show eyes image and play music
                 
             else:
-                change_current_question()
+                if HOLD == False:
+                    change_current_question()
 
                 channel1.play(pygame.mixer.Sound(ans_sound))
                 sleep(3)
@@ -227,13 +233,13 @@ pygame.mixer.init()
 
 
 #Pygame parameter
-DISPLAY_WIDTH = 500 #Define LCD monitor width
-DISPLAY_HEIGHT = 700 #Define LCD monitor height
+DISPLAY_WIDTH = 480 #Define LCD monitor width
+DISPLAY_HEIGHT = 640 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 HARD_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + EASY_BUTTON_POSITION_X * 2
-font = pygame.font.Font('/home/pi/Desktop/BME3S02/media/font/mnjzbh.ttf', 30)
+font = pygame.font.Font('/home/pi/Desktop/Doll_Therapy/media/font/mnjzbh.ttf', 62)
 
 
 
@@ -289,7 +295,7 @@ def game_intro():
     while True:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
-                intro_sound = glob.glob('/home/pi/Desktop/BME3S02/media/sound/opening/*.mp3')
+                intro_sound = glob.glob('/home/pi/Desktop/Doll_Therapy/media/sound/opening/*.mp3')
                 intro_sound = choice(intro_sound)
                 pygame.mixer.music.load(intro_sound)
                 pygame.mixer.music.play()
@@ -319,7 +325,7 @@ def difficulty():
     while True:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
-                pygame.mixer.music.load("/home/pi/Desktop/BME3S02/media/sound/choice.mp3")
+                pygame.mixer.music.load("/home/pi/Desktop/Doll_Therapy/media/sound/choice.mp3")
                 pygame.mixer.music.play()
          
             if e.type == pygame.QUIT:
@@ -361,9 +367,9 @@ def game_loop(difficult = None):
     global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, CURRENT_QUESTION_IMAGE, SCORE
 
     if difficult == 'easy':
-        QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/question/*.mp3")
+        QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/question/*.mp3")
     elif difficult == 'hard':
-        QUESTION = glob.glob("/home/pi/Desktop/BME3S02/media/questioH/*.mp3")
+        QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/questioH/*.mp3")
 
     # Re-initilize global data 
     QUESTION_COUNT = len(QUESTION)
@@ -372,7 +378,7 @@ def game_loop(difficult = None):
     SCORE = 0
 
     # Set countign time and event
-    counter, time = 3, '3'.rjust(3) #SET COUNT TIME
+    counter, time = 60, '60'.rjust(3) #SET COUNT TIME
     COUNTTIMEEVENT = pygame.USEREVENT + 1 #Define count time event
     pygame.time.set_timer(COUNTTIMEEVENT, 1500) #The count time event repeat every 1s
 
@@ -434,6 +440,13 @@ def game_loop(difficult = None):
         quest_image = pygame.image.load(CURRENT_QUESTION_IMAGE)
         screen.blit(quest_image,((DISPLAY_WIDTH / 5), (DISPLAY_HEIGHT/2.5)))
 
+        button("跳過", 0, 0, 140, 65, RED, BRIGHT_RED, pass_ans)
+        
+        if get_HOLD() == True:
+            button("HELD", 280, 0, 140, 65, RED, BRIGHT_RED, set_HOLD)
+        else:
+            button("HOLD", 280, 0, 140, 65, GREEN, BRIGHT_GREEN, set_HOLD)
+
         #button("TEST", 0, 0, 120, 50, RED, BRIGHT_RED, udpateScore)
 
 
@@ -451,7 +464,7 @@ def game_loop(difficult = None):
 def game_end():
     global CURRENT_STAGE
     CURRENT_STAGE = 'game_end'
-    end_sound = glob.glob('/home/pi/Desktop/BME3S02/media/sound/timesup/*.mp3')
+    end_sound = glob.glob('/home/pi/Desktop/Doll_Therapy/media/sound/timesup/*.mp3')
     end_sound = choice(end_sound)
     #print(end_sound)
     pygame.mixer.music.load(end_sound)   
@@ -460,13 +473,13 @@ def game_end():
     COLOR = (0,0,0)
     
     if SCORE > 10:
-        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/vgood.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/vgood.mp3']
     elif SCORE > 5:
-        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/good.mp3']
-    elif SCORE > 1:
-        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/good.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
+    elif SCORE >= 1:
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
     else:
-        score_sound = ['/home/pi/Desktop/BME3S02/media/sound/again.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/again.mp3']
         
     while True:
         for e in pygame.event.get():
@@ -487,7 +500,7 @@ def game_end():
             TEXT = "做得好!"
             COLOR = GREEN
             
-        elif SCORE > 1:
+        elif SCORE >= 1:
             TEXT = "不錯哦~"
             COLOR = GREEN
             
@@ -525,7 +538,19 @@ def quitgame():
     disp.clear()
     quit()
 
+   
+def pass_ans():
+    global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
+    QUESTION_COUNT -= 1
+    CURRENT_QUESTION = QUESTION.pop(0)
 
+def set_HOLD():
+    global HOLD
+    HOLD = not HOLD
+    
+def get_HOLD():
+    global HOLD
+    return HOLD
 #Run the game introduction loop
 #Close the program if introduction loop break
 
@@ -534,4 +559,5 @@ def quitgame():
 game_intro()
 pygame.quit()
 quit()
+
 
