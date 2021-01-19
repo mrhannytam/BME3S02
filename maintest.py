@@ -160,15 +160,14 @@ def worker():
 
 
     # Combine two function of motor
-    def shake_head(): 
-        check = check_answer(card)
-        if check == True:
-            Motor_head(True)
-            Motor_mouth(False)
-        elif check == False:
-            Motor_head(False)
-            Motor_mouth(True)    
-         
+    def shake_head_correct(): 
+        Motor_head(True)
+        Motor_mouth(False)
+
+
+    def shake_head_wrong():
+        Motor_head(False)
+        Motor_mouth(True)              
          
     while True:
         #print(CURRENT_QUESTION)
@@ -196,7 +195,7 @@ def worker():
                 channel1.play(pygame.mixer.Sound(ans_sound))
                 sleep(3)
                 
-                t = Thread(target=shake_head) #Set up the thread
+                t = Thread(target=shake_head_correct) #Set up the thread
                 t.daemon = True        
                 t.start() #Start spliting the program into 2 threads
                 Eyes('True') #show eyes image and play music
@@ -207,7 +206,7 @@ def worker():
                 channel1.play(pygame.mixer.Sound(ans_sound))
                 sleep(3)
                 
-                t = Thread(target=shake_head) #Set up the thread
+                t = Thread(target=shake_head_wrong) #Set up the thread
                 t.daemon = True
                 t.start() #Start spliting the program into 2 threads
                 Eyes('False')
