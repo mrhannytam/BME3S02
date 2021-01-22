@@ -57,178 +57,181 @@ CURRENT_STAGE = 'game_intro'
 '''Pygame Initialization'''
 
 def worker():
-    def Eyes(check):
-         def blink(iamge): # blink 3 times 
-             for i in range(3):
-                 disp.image(image)
-                 disp.display()
-                 sleep(0.5) # Blink blink time
-                 disp.clear()
-                 disp.display()
+    try:
+        def Eyes(check):
+            def blink(iamge): # blink 3 times 
+                for i in range(3):
+                    disp.image(image)
+                    disp.display()
+                    sleep(0.5) # Blink blink time
+                    disp.clear()
+                    disp.display()
 
-         def slow_blink(iamge): # blink 3 times
-             for i in range(5):
-                 disp.image(image)
-                 disp.display()
-                 sleep(2) # Blink blink time
-                 disp.clear()
-                 disp.display()
-             
-         load = os.getloadavg()
-         image = Image.new('1', (WIDTH, HEIGHT))
-         draw = ImageDraw.Draw(image)
-         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
-         if check == 'True':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/effect/success.wav'))
-             draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
-             blink(image)         
-            
-         elif check == 'False':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/effect/fail.wav'))
-             draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
-             blink(image)
-             
-         elif check == 'intro':
-             random_eyes = ['^', '=', '*', 'O', 'X']
-             random_eyes = choice(random_eyes)
-             draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
-             slow_blink(image)
+            def slow_blink(iamge): # blink 3 times
+                for i in range(5):
+                    disp.image(image)
+                    disp.display()
+                    sleep(2) # Blink blink time
+                    disp.clear()
+                    disp.display()
+                
+            load = os.getloadavg()
+            image = Image.new('1', (WIDTH, HEIGHT))
+            draw = ImageDraw.Draw(image)
+            draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
+            if check == 'True':
+                channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/effect/success.wav'))
+                draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
+                blink(image)         
+                
+            elif check == 'False':
+                channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/effect/fail.wav'))
+                draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
+                blink(image)
+                
+            elif check == 'intro':
+                random_eyes = ['^', '=', '*', 'O', 'X']
+                random_eyes = choice(random_eyes)
+                draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
+                slow_blink(image)
 
-    #motor_head
-    def Motor_head(check):
+        #motor_head
+        def Motor_head(check):
 
-         pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
-         pwm.start(0)
-         def angle_to_duty_cycle(angle=0):
-             duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
-             return duty_cycle
+            pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
+            pwm.start(0)
+            def angle_to_duty_cycle(angle=0):
+                duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
+                return duty_cycle
 
-         if check == True:
-             next
-         else:
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
-             time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
-             time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
-             time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
-             time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
-             time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
-             time.sleep(0.3)
-         pwm.stop()
-
-    #motor_mouth
-    def Motor_mouth(check):
-
-        pwm2 = GPIO.PWM(CONTROL_PIN2, PWM_FREQ)
-        pwm2.start(0)
-        def angle_to_duty_cycle2(angle=0):
-            duty_cycle2 = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
-            return duty_cycle2
-
-        if check == True:
-            next
-        else:
-            #motor_mouth
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
-            time.sleep(0.3)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
-            time.sleep(0.3)
-
-        pwm2.stop()
-
-     #Change another question when correct/wrong
-    def change_current_question():
-         global CURRENT_QUESTION, QUESTION, QUESTION_COUNT, CURRENT_QUESTION_NUMBER
-         QUESTION_COUNT -= 1
-         CURRENT_QUESTION = QUESTION.pop(0)
-         CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
-
-
-     #Check whether the answer is correct or not
-    def check_answer(ans):
-        try:
-            if ans == CURRENT_QUESTION_NUMBER:
-                return True
+            if check == True:
+                next
             else:
+                pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+                time.sleep(0.3)
+                pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
+                time.sleep(0.3)
+                pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
+                time.sleep(0.3)
+                pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
+                time.sleep(0.3)
+                pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
+                time.sleep(0.3)
+                pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+                time.sleep(0.3)
+            pwm.stop()
+
+        #motor_mouth
+        def Motor_mouth(check):
+
+            pwm2 = GPIO.PWM(CONTROL_PIN2, PWM_FREQ)
+            pwm2.start(0)
+            def angle_to_duty_cycle2(angle=0):
+                duty_cycle2 = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
+                return duty_cycle2
+
+            if check == True:
+                next
+            else:
+                #motor_mouth
+                pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+                time.sleep(0.3)
+                pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+                time.sleep(0.3)
+                pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+                time.sleep(0.3)
+                pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+                time.sleep(0.3)
+                pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+                time.sleep(0.3)
+                pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+                time.sleep(0.3)
+                pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+                time.sleep(0.3)
+
+            pwm2.stop()
+
+        #Change another question when correct/wrong
+        def change_current_question():
+            global CURRENT_QUESTION, QUESTION, QUESTION_COUNT, CURRENT_QUESTION_NUMBER
+            QUESTION_COUNT -= 1
+            CURRENT_QUESTION = QUESTION.pop(0)
+            CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
+
+
+        #Check whether the answer is correct or not
+        def check_answer(ans):
+            try:
+                if ans == CURRENT_QUESTION_NUMBER:
+                    return True
+                else:
+                    return False
+            except:
                 return False
-        except:
-            return False
 
 
-    # Combine two function of motor
-    def shake_head_correct(): 
-        Motor_head(True)
-        Motor_mouth(False)
+        # Combine two function of motor
+        def shake_head_correct(): 
+            Motor_head(True)
+            Motor_mouth(False)
 
-    def shake_head_wrong():
-        Motor_head(False)
-        Motor_mouth(True)    
-         
-         
-    while True:
-        #print(CURRENT_QUESTION)
-        global CURRENT_STAGE
-        print(CURRENT_STAGE)
-        if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
-             Eyes('intro')
+        def shake_head_wrong():
+            Motor_head(False)
+            Motor_mouth(True)    
             
-        elif CURRENT_STAGE == 'game_loop':
-            id, text = reader.read()
-            sleep(0.3)
-            card = int(text)
-            print('Current Question number is: ', CURRENT_QUESTION_NUMBER, 'Tapped number is: ', card)
             
-                            
-            ans_sound = CURRENT_QUESTION
-            ans_sound = ans_sound.replace('question_hard', 'ans').replace('question', 'ans')
-            ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER + '.mp3', str(card) + '.wav')
-            print('Playing answer sound:', ans_sound)
-    
-            if check_answer(card): #Checking answer
-                global SCORE
-                SCORE += 1 #Add score
-                change_current_question() #Change question
+        while True:
+            #print(CURRENT_QUESTION)
+            global CURRENT_STAGE
+            print(CURRENT_STAGE)
+            if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
+                Eyes('intro')
                 
-                channel1.play(pygame.mixer.Sound(ans_sound))
-                sleep(3)
+            elif CURRENT_STAGE == 'game_loop':
+                id, text = reader.read()
+                sleep(0.3)
+                card = int(text)
+                print('Current Question number is: ', CURRENT_QUESTION_NUMBER, 'Tapped number is: ', card)
                 
-                t = Thread(target=shake_head_correct) #Set up the thread
-                t.daemon = True        
-                t.start() #Start spliting the program into 2 threads
-                Eyes('True') #show eyes image and play music
-                
-            else:
-                if HOLD == False:
-                    change_current_question()
+                                
+                ans_sound = CURRENT_QUESTION
+                ans_sound = ans_sound.replace('question_hard', 'ans').replace('question', 'ans')
+                ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER + '.mp3', str(card) + '.wav')
+                print('Playing answer sound:', ans_sound)
+        
+                if check_answer(card): #Checking answer
+                    global SCORE
+                    SCORE += 1 #Add score
+                    change_current_question() #Change question
+                    
+                    channel1.play(pygame.mixer.Sound(ans_sound))
+                    sleep(3)
+                    
+                    t = Thread(target=shake_head_correct) #Set up the thread
+                    t.daemon = True        
+                    t.start() #Start spliting the program into 2 threads
+                    Eyes('True') #show eyes image and play music
+                    
+                else:
+                    if HOLD == False:
+                        change_current_question()
 
-                channel1.play(pygame.mixer.Sound(ans_sound))
-                sleep(3)
-                
-                t = Thread(target=shake_head_wrong) #Set up the thread
-                t.daemon = True
-                t.start() #Start spliting the program into 2 threads
-                Eyes('False')
+                    channel1.play(pygame.mixer.Sound(ans_sound))
+                    sleep(3)
+                    
+                    t = Thread(target=shake_head_wrong) #Set up the thread
+                    t.daemon = True
+                    t.start() #Start spliting the program into 2 threads
+                    Eyes('False')
 
-            disp.clear()
-            disp.display() #Display nothing to the OLED monitor (Clear)
+                disp.clear()
+                disp.display() #Display nothing to the OLED monitor (Clear)
 
+    except Exception as e:
+        print(e)
 
 gpio_thread = Thread(target=worker) #Set up the thread
-gpio_thread.daemon = True
+gpio_thread.daemon = False
 gpio_thread.start() #Start spliting the program into 2 threads
 
 
