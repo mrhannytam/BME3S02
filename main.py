@@ -243,8 +243,6 @@ def worker():
                 sleep(1)
             except Exception as e:
                 print(e)
-            finally:
-                GPIO.cleanup()
 
     except Exception as e:
         print(e)
