@@ -195,7 +195,7 @@ def worker():
             
                             
             ans_sound = CURRENT_QUESTION
-            ans_sound = ans_sound.replace('question', 'ans').replace('question_hard', 'ans')
+            ans_sound = ans_sound.replace('question_hard', 'ans').replace('question', 'ans').
             ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER, str(card)).replace('mp3', 'wav')
             print('Playing answer sound:', ans_sound)
     
