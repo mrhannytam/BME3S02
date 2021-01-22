@@ -21,36 +21,22 @@ def angle_to_duty_cycle(angle=0):
 try:
     print('Ctrl+c to stop the program')
     #motor 2 mouth
-<<<<<<< HEAD
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(90))
-    time.sleep(.5)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(75))
-    time.sleep(.5)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(90))
-    time.sleep(.5)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(75))
-    time.sleep(.5)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(90))
-    time.sleep(.5)
 
-   
-=======
     pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
     time.sleep(.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(20))
-    time.sleep(.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
-    time.sleep(.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(20))
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(10))
     time.sleep(.3)
     pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
     time.sleep(.3)
-    pwm2.ChangeDutyCycle(angle_to_duty_cycle(20))
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(10))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
+    time.sleep(.3)
+    pwm2.ChangeDutyCycle(angle_to_duty_cycle(10))
     time.sleep(.3)
     pwm2.ChangeDutyCycle(angle_to_duty_cycle(60))
     time.sleep(.3)
 
->>>>>>> 34d5323c11d21c7a391a1323f908a68eaddb2d6e
     while True:
         next
 except KeyboardInterrupt:

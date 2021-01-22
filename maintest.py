@@ -43,7 +43,7 @@ shuffle(QUESTION)
 CURRENT_QUESTION = QUESTION.pop(0)
 SCORE = 0
 card = 0
-HOLD = False
+HOLD = True
 '''QUESTION Initialization'''
 
 
@@ -55,56 +55,112 @@ CURRENT_STAGE = 'game_intro'
 '''Pygame Initialization'''
 
 def worker():
-    try:
-        def Eyes(check):
-            def blink(iamge): # blink 3 times 
-                for i in range(3):
-                    disp.image(image)
-                    disp.display()
-                    sleep(0.5) # Blink blink time
-                    disp.clear()
-                    disp.display()
+    def Eyes(check):
+         def blink(iamge): # blink 3 times 
+             for i in range(3):
+                 disp.image(image)
+                 disp.display()
+                 sleep(0.5) # Blink blink time
+                 disp.clear()
+                 disp.display()
 
-            def slow_blink(iamge): # blink 3 times
-                for i in range(5):
-                    disp.image(image)
-                    disp.display()
-                    sleep(2) # Blink blink time
-                    disp.clear()
-                    disp.display()
-                
-            load = os.getloadavg()
-            image = Image.new('1', (WIDTH, HEIGHT))
-            draw = ImageDraw.Draw(image)
-            draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
-            if check == 'True':
-                channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/success.wav'))
-                draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
-                blink(image)         
-                
-            elif check == 'False':
-                channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/fail.wav'))
-                draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
-                blink(image)
-                
-            elif check == 'intro':
-                random_eyes = ['^', '=', '*', 'O', 'X']
-                random_eyes = choice(random_eyes)
-                #print(random_eyes)             
-                draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
-                slow_blink(image)
+         def slow_blink(iamge): # blink 3 times
+             for i in range(5):
+                 disp.image(image)
+                 disp.display()
+                 sleep(2) # Blink blink time
+                 disp.clear()
+                 disp.display()
+             
+         load = os.getloadavg()
+         image = Image.new('1', (WIDTH, HEIGHT))
+         draw = ImageDraw.Draw(image)
+         draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
+         if check == 'True':
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/success.wav'))
+             draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
+             blink(image)         
+            
+         elif check == 'False':
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/fail.wav'))
+             draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
+             blink(image)
+             
+         elif check == 'intro':
+             random_eyes = ['^', '=', '*', 'O', 'X']
+             random_eyes = choice(random_eyes)
+             #print(random_eyes)             
+             draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
+             slow_blink(image)
 
-        #motor_head
-        def Motor_head(check):
+    #motor_head
+    def Motor_head(check):
 
-            pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
-            pwm.start(0)
-            def angle_to_duty_cycle(angle=0):
-                duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
-                return duty_cycle
+         pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
+         pwm.start(0)
+         def angle_to_duty_cycle(angle=0):
+             duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
+             return duty_cycle
 
-            if check == True:
-                next
+         if check == True:
+             next
+         else:
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
+             time.sleep(0.3)
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
+             time.sleep(0.3)
+         pwm.stop()
+
+    #motor_mouth
+    def Motor_mouth(check):
+
+        pwm2 = GPIO.PWM(CONTROL_PIN2, PWM_FREQ)
+        pwm2.start(0)
+        def angle_to_duty_cycle2(angle=0):
+            duty_cycle2 = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ *angle / 180)
+            return duty_cycle2
+
+        if check == True:
+            next
+        else:
+            #motor_mouth
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
+
+        pwm2.stop()
+
+     #Change another question when correct/wrong
+    def change_current_question():
+         global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
+         QUESTION_COUNT -= 1
+         CURRENT_QUESTION = QUESTION.pop(0)
+
+
+     #Check whether the answer is correct or not
+    def check_answer(ans):
+        try:
+            if ans == int(CURRENT_QUESTION[45:-4]):
+                return True
             else:
                 pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
                 time.sleep(0.3)
@@ -241,7 +297,7 @@ pygame.mixer.init()
 
 #Pygame parameter
 DISPLAY_WIDTH = 480 #Define LCD monitor width
-DISPLAY_HEIGHT = 640 #Define LCD monitor height
+DISPLAY_HEIGHT = 800 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
@@ -385,7 +441,7 @@ def game_loop(difficult = None):
     SCORE = 0
 
     # Set countign time and event
-    counter, time = 60, '60'.rjust(3) #SET COUNT TIME
+    counter, time = 600, '600'.rjust(3) #SET COUNT TIME
     COUNTTIMEEVENT = pygame.USEREVENT + 1 #Define count time event
     pygame.time.set_timer(COUNTTIMEEVENT, 1500) #The count time event repeat every 1s
 
@@ -449,10 +505,10 @@ def game_loop(difficult = None):
 
         button("跳過", 0, 0, 140, 65, RED, BRIGHT_RED, pass_ans)
         
-        if get_HOLD() == True:
-            button("HELD", 280, 0, 140, 65, RED, BRIGHT_RED, set_HOLD)
-        else:
-            button("HOLD", 280, 0, 140, 65, GREEN, BRIGHT_GREEN, set_HOLD)
+        ##if get_HOLD() == True:
+            ##button("HELD", 280, 0, 140, 65, RED, BRIGHT_RED, set_HOLD)
+        ##else:
+            ##button("HOLD", 280, 0, 140, 65, GREEN, BRIGHT_GREEN, set_HOLD)
 
         #button("TEST", 0, 0, 120, 50, RED, BRIGHT_RED, udpateScore)
 
@@ -484,7 +540,7 @@ def game_end():
     elif SCORE > 5:
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
     elif SCORE >= 1:
-        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/notbad.mp3']
     else:
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/again.mp3']
         
