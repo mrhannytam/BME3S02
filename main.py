@@ -186,8 +186,8 @@ def worker():
             
         while True:
             #print(CURRENT_QUESTION)
-            global CURRENT_STAGE
-            print(CURRENT_STAGE)
+            #global CURRENT_STAGE
+            print(CURRENT_QUESTION)
             if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
                 Eyes('intro')
                 
