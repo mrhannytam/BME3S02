@@ -14,6 +14,7 @@ import os # shutdown computer
 import time #set timeout to prevent RFID detect too many time
 from queue import Queue #Split the program to 2 threads
 from threading import Thread #Split the program to 2 threads
+import re
 
 '''GPIO Initialization'''
 GPIO.setwarnings(False)
@@ -41,6 +42,7 @@ QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/question/*.mp3")
 QUESTION_COUNT = len(QUESTION)
 shuffle(QUESTION)
 CURRENT_QUESTION = QUESTION.pop(0)
+CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
 SCORE = 0
 card = 0
 HOLD = True
@@ -151,15 +153,16 @@ def worker():
 
      #Change another question when correct/wrong
     def change_current_question():
-         global CURRENT_QUESTION, QUESTION, QUESTION_COUNT
+         global CURRENT_QUESTION, QUESTION, QUESTION_COUNT, CURRENT_QUESTION_NUMBER
          QUESTION_COUNT -= 1
          CURRENT_QUESTION = QUESTION.pop(0)
+         CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
 
 
      #Check whether the answer is correct or not
     def check_answer(ans):
         try:
-            if ans == int(CURRENT_QUESTION[45:-4]):
+            if ans == CURRENT_QUESTION_NUMBER:
                 return True
             else:
                 return False
@@ -188,12 +191,12 @@ def worker():
             id, text = reader.read()
             sleep(0.3)
             card = int(text)
-            print('Current Question number is: ', CURRENT_QUESTION[45:-4], 'Tapped number is: ', card)
+            print('Current Question number is: ', CURRENT_QUESTION_NUMBER, 'Tapped number is: ', card)
             
                             
             ans_sound = CURRENT_QUESTION
             ans_sound = ans_sound.replace('question', 'ans').replace('question_hard', 'ans')
-            ans_sound = ans_sound.replace(CURRENT_QUESTION[45:-4], str(card)).replace('mp3', 'wav')
+            ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER, str(card)).replace('mp3', 'wav')
             print('Playing answer sound:', ans_sound)
     
             if check_answer(card): #Checking answer
@@ -354,11 +357,12 @@ def difficulty():
 
 
 def udpateScore(): #For Testing
-    global SCORE, CURRENT_QUESTION, QUESTION_COUNT
+    global SCORE, CURRENT_QUESTION, QUESTION_COUNT, CURRENT_QUESTION_NUMBER
     SCORE += 1
     QUESTION_COUNT -= 1
     if QUESTION_COUNT != 0:
         CURRENT_QUESTION = QUESTION.pop(0)
+        CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
     else:
         game_end()
 
@@ -368,7 +372,7 @@ def game_loop(difficult = None):
     CURRENT_STAGE = 'game_loop'
     #print('Here is game loop, the difficultly is ', difficult)
     #Access the global parameter for accessing game resources (First start + Restart)
-    global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, CURRENT_QUESTION_IMAGE, SCORE
+    global QUESTION, QUESTION_COUNT, CURRENT_QUESTION, CURRENT_QUESTION_IMAGE, SCORE, CURRENT_QUESTION_NUMBER
 
     if difficult == 'easy':
         QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/question/*.mp3")
@@ -379,6 +383,7 @@ def game_loop(difficult = None):
     QUESTION_COUNT = len(QUESTION)
     shuffle(QUESTION)
     CURRENT_QUESTION = QUESTION.pop(0)
+    CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
     SCORE = 0
 
     # Set countign time and event
