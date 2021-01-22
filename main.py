@@ -242,6 +242,8 @@ def worker():
 
     except Exception as e:
         print(e)
+    finally:
+        GPIO.cleanup()
 
 gpio_thread = Thread(target=worker) #Set up the thread
 gpio_thread.daemon = True
@@ -309,6 +311,14 @@ def button(msg, x, y, w, h, ic , ac, action = None, parameter = None):
     textSurf, textRect = text_objects(msg, font)
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
     screen.blit(textSurf, textRect)
+
+def set_HOLD():
+    global HOLD
+    HOLD = not HOLD
+    
+def get_HOLD():
+    global HOLD
+    return HOLD
 
 #Game introduction, showing hello
 def game_intro():
@@ -559,6 +569,7 @@ def game_end():
 #Quit game function (DEV)
 def quitgame():
     pygame.quit()
+    GPIO.cleanup()
     disp.clear()
     quit()
 
@@ -568,13 +579,7 @@ def pass_ans():
     QUESTION_COUNT -= 1
     CURRENT_QUESTION = QUESTION.pop(0)
 
-def set_HOLD():
-    global HOLD
-    HOLD = not HOLD
-    
-def get_HOLD():
-    global HOLD
-    return HOLD
+
 #Run the game introduction loop
 #Close the program if introduction loop break
 
