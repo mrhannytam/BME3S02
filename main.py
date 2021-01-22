@@ -77,12 +77,12 @@ def worker():
          draw = ImageDraw.Draw(image)
          draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0) #initialize the display structure
          if check == 'True':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/success.wav'))
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/effect/success.wav'))
              draw.text((43, 0), 'O',  font=led_font, fill=255) #Draw 'O' on OLED monitor
              blink(image)         
             
          elif check == 'False':
-             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/fail.wav'))
+             channel1.play(pygame.mixer.Sound('/home/pi/Desktop/Doll_Therapy/media/sound/effect/fail.wav'))
              draw.text((43, 0), 'X',  font=led_font, fill=255) #Draw 'X' on OLED monitor
              blink(image)
              
@@ -329,7 +329,7 @@ def difficulty():
     while True:
         for e in pygame.event.get(): #this part is for game event, something like a receiver
             if e.type == PLAYSOUNDEVENT and not pygame.mixer.music.get_busy():
-                pygame.mixer.music.load("/home/pi/Desktop/Doll_Therapy/media/sound/choice.mp3")
+                pygame.mixer.music.load("/home/pi/Desktop/Doll_Therapy/media/sound/difficulty/choice.mp3")
                 pygame.mixer.music.play()
          
             if e.type == pygame.QUIT:
@@ -477,13 +477,13 @@ def game_end():
     COLOR = (0,0,0)
     
     if SCORE > 10:
-        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/vgood.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/cheerup/vgood.mp3']
     elif SCORE > 5:
-        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/cheerup/good.mp3']
     elif SCORE >= 1:
-        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/notbad.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/cheerup/notbad.mp3']
     else:
-        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/again.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/cheerup/again.mp3']
         
     while True:
         for e in pygame.event.get():
