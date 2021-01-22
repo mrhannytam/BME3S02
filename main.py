@@ -91,7 +91,6 @@ def worker():
          elif check == 'intro':
              random_eyes = ['^', '=', '*', 'O', 'X']
              random_eyes = choice(random_eyes)
-             #print(random_eyes)             
              draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
              slow_blink(image)
 
@@ -182,7 +181,7 @@ def worker():
          
     while True:
         #print(CURRENT_QUESTION)
-        #global CURRENT_STAGE
+        global CURRENT_STAGE
         print(CURRENT_STAGE)
         if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
              Eyes('intro')
@@ -475,7 +474,7 @@ def game_end():
     CURRENT_STAGE = 'game_end'
     end_sound = glob.glob('/home/pi/Desktop/Doll_Therapy/media/sound/timesup/*.mp3')
     end_sound = choice(end_sound)
-    #print(end_sound)
+
     pygame.mixer.music.load(end_sound)   
     pygame.mixer.music.play()
     TEXT = ""
