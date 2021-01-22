@@ -98,6 +98,7 @@ def worker():
                 th.daemon = True        
                 th.start() #Start spliting the program into 2 threads
                 #slow_blink(image)
+            disp.clear()
 
         #motor_head
         def Motor_head(check):
@@ -166,6 +167,8 @@ def worker():
         #Check whether the answer is correct or not
         def check_answer(ans):
             try:
+                print('This is ans', ans)
+                print('This is current_question_number', CURRENT_QUESTION_NUMBER)
                 if ans == CURRENT_QUESTION_NUMBER:
                     return True
                 else:
@@ -190,6 +193,8 @@ def worker():
             #print(CURRENT_QUESTION)
             if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
                 Eyes('intro')
+                disp.clear()
+                disp.display()
                 
             elif CURRENT_STAGE == 'game_loop':
                 id, text = reader.read()
@@ -215,6 +220,8 @@ def worker():
                     t.daemon = True        
                     t.start() #Start spliting the program into 2 threads
                     Eyes('True') #show eyes image and play music
+                    disp.clear()
+                    disp.display()
                     
                 else:
                     if HOLD == False:
@@ -227,7 +234,8 @@ def worker():
                     t.daemon = True
                     t.start() #Start spliting the program into 2 threads
                     Eyes('False')
-
+                    disp.clear()
+                    disp.display()
                 disp.clear()
                 disp.display() #Display nothing to the OLED monitor (Clear)
             sleep(1)
