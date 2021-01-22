@@ -94,10 +94,10 @@ def worker():
                 random_eyes = choice(random_eyes)
                 draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
                 
-                th = Thread(target=slow_blink, args=(image,)) #Set up the thread
-                th.daemon = True        
-                th.start() #Start spliting the program into 2 threads
-                #slow_blink(image)
+                # th = Thread(target=slow_blink, args=(image,)) #Set up the thread
+                # th.daemon = True        
+                # th.start() #Start spliting the program into 2 threads
+                slow_blink(image)
             disp.clear()
 
         #motor_head
