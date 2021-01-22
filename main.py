@@ -230,6 +230,7 @@ def worker():
 
                 disp.clear()
                 disp.display() #Display nothing to the OLED monitor (Clear)
+            sleep(1)
 
     except Exception as e:
         print(e)
