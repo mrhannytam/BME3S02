@@ -45,7 +45,7 @@ CURRENT_QUESTION = QUESTION.pop(0)
 CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
 SCORE = 0
 card = 0
-HOLD = True
+HOLD = False
 '''QUESTION Initialization'''
 
 
