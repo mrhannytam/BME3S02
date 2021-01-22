@@ -191,59 +191,64 @@ def worker():
             #print(CURRENT_QUESTION)
             #global CURRENT_STAGE
             print(CURRENT_STAGE)
-            if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
-                Eyes('intro')
-                disp.clear()
-                disp.display()
-                
-            elif CURRENT_STAGE == 'game_loop':
-                id, text = reader.read()
-                sleep(0.3)
-                card = int(text)
-                print('Current Question number is: ', CURRENT_QUESTION_NUMBER, 'Tapped number is: ', card)
-                
-                                
-                ans_sound = CURRENT_QUESTION
-                ans_sound = ans_sound.replace('question_hard', 'ans').replace('question', 'ans')
-                ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER + '.mp3', str(card) + '.wav')
-                print('Playing answer sound:', ans_sound)
-        
-                if check_answer(card): #Checking answer
-                    global SCORE
-                    SCORE += 1 #Add score
-                    change_current_question() #Change question
-                    
-                    channel1.play(pygame.mixer.Sound(ans_sound))
-                    sleep(3)
-                    
-                    t = Thread(target=shake_head_correct) #Set up the thread
-                    t.daemon = True        
-                    t.start() #Start spliting the program into 2 threads
-                    Eyes('True') #show eyes image and play music
+            try:
+                if CURRENT_STAGE == 'game_intro' or CURRENT_STAGE == 'difficulty':
+                    Eyes('intro')
                     disp.clear()
                     disp.display()
                     
-                else:
-                    if HOLD == False:
-                        change_current_question()
+                elif CURRENT_STAGE == 'game_loop':
+                    id, text = reader.read()
+                    sleep(0.3)
+                    print('I tap.........................', text)
+                    card = int(text)
+                    print('Current Question number is: ', CURRENT_QUESTION_NUMBER, 'Tapped number is: ', card)
+                    
+                                    
+                    ans_sound = CURRENT_QUESTION
+                    ans_sound = ans_sound.replace('question_hard', 'ans').replace('question', 'ans')
+                    ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER + '.mp3', str(card) + '.wav')
+                    print('Playing answer sound:', ans_sound)
+            
+                    if check_answer(card): #Checking answer
+                        global SCORE
+                        SCORE += 1 #Add score
+                        change_current_question() #Change question
+                        
+                        channel1.play(pygame.mixer.Sound(ans_sound))
+                        sleep(3)
+                        
+                        t = Thread(target=shake_head_correct) #Set up the thread
+                        t.daemon = True        
+                        t.start() #Start spliting the program into 2 threads
+                        Eyes('True') #show eyes image and play music
+                        disp.clear()
+                        disp.display()
+                        
+                    else:
+                        if HOLD == False:
+                            change_current_question()
 
-                    channel1.play(pygame.mixer.Sound(ans_sound))
-                    sleep(3)
-                    
-                    t = Thread(target=shake_head_wrong) #Set up the thread
-                    t.daemon = True
-                    t.start() #Start spliting the program into 2 threads
-                    Eyes('False')
+                        channel1.play(pygame.mixer.Sound(ans_sound))
+                        sleep(3)
+                        
+                        t = Thread(target=shake_head_wrong) #Set up the thread
+                        t.daemon = True
+                        t.start() #Start spliting the program into 2 threads
+                        Eyes('False')
+                        disp.clear()
+                        disp.display()
                     disp.clear()
-                    disp.display()
-                disp.clear()
-                disp.display() #Display nothing to the OLED monitor (Clear)
-            sleep(1)
+                    disp.display() #Display nothing to the OLED monitor (Clear)
+                sleep(1)
+            except Exception as e:
+                print(e)
+            finally:
+                GPIO.cleanup()
 
     except Exception as e:
         print(e)
-    finally:
-        GPIO.cleanup()
+
 
 gpio_thread = Thread(target=worker) #Set up the thread
 gpio_thread.daemon = True
