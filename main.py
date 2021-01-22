@@ -192,7 +192,7 @@ def worker():
             
                             
             ans_sound = CURRENT_QUESTION
-            ans_sound = ans_sound.replace('question', 'ans').replace('questionH', 'ans')
+            ans_sound = ans_sound.replace('question', 'ans').replace('question_hard', 'ans')
             ans_sound = ans_sound.replace(CURRENT_QUESTION[45:-4], str(card)).replace('mp3', 'wav')
             print('Playing answer sound:', ans_sound)
     
@@ -373,7 +373,7 @@ def game_loop(difficult = None):
     if difficult == 'easy':
         QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/question/*.mp3")
     elif difficult == 'hard':
-        QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/questioH/*.mp3")
+        QUESTION = glob.glob("/home/pi/Desktop/Doll_Therapy/media/question_hard/*.mp3")
 
     # Re-initilize global data 
     QUESTION_COUNT = len(QUESTION)
@@ -397,7 +397,7 @@ def game_loop(difficult = None):
         CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('question', 'game_image')
     elif difficult == 'hard':
         temp = quest
-        CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('questioH', 'game_image_hard')
+        CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('question_hard', 'game_image_hard')
     print('The question is :',quest, '; The question image is: ', CURRENT_QUESTION_IMAGE, '; Number of question left: ', QUESTION_COUNT)
     
 
@@ -421,7 +421,7 @@ def game_loop(difficult = None):
 
                 elif difficult == 'hard':
                     temp = quest
-                    CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('questioH', 'game_image_hard')
+                    CURRENT_QUESTION_IMAGE = temp.replace('mp3', 'jpg').replace('question_hard', 'game_image_hard')
                 
                 print('The question is :',quest, '; The question image is: ', CURRENT_QUESTION_IMAGE, '; Number of question left: ', QUESTION_COUNT)
 

@@ -35,7 +35,7 @@ Project Structure:
     * font 
     * image (For further development)
     * question (Easy question mp3)
-    * questionH (Hard question mp3)
+    * question_hard (Hard question mp3)
     * game_image (Easy question image)
     * game_image_hard (Hard question image)
     * ans(All answer wav)
