@@ -93,7 +93,11 @@ def worker():
                 random_eyes = ['^', '=', '*', 'O', 'X']
                 random_eyes = choice(random_eyes)
                 draw.text((50, 0), random_eyes,  font=led_font, fill=255) #Draw 'X' on OLED monitor
-                slow_blink(image)
+                
+                t = Thread(target=slow_blink, args=(image,)) #Set up the thread
+                t.daemon = True        
+                t.start() #Start spliting the program into 2 threads
+                #slow_blink(image)
 
         #motor_head
         def Motor_head(check):
@@ -231,7 +235,7 @@ def worker():
         print(e)
 
 gpio_thread = Thread(target=worker) #Set up the thread
-gpio_thread.daemon = False
+gpio_thread.daemon = True
 gpio_thread.start() #Start spliting the program into 2 threads
 
 
