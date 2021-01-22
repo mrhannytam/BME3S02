@@ -43,7 +43,7 @@ shuffle(QUESTION)
 CURRENT_QUESTION = QUESTION.pop(0)
 SCORE = 0
 card = 0
-HOLD = False
+HOLD = True
 '''QUESTION Initialization'''
 
 
@@ -107,13 +107,13 @@ def worker():
          else:
              pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
              time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
              time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
              time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(135))
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(120))
              time.sleep(0.3)
-             pwm.ChangeDutyCycle(angle_to_duty_cycle(45))
+             pwm.ChangeDutyCycle(angle_to_duty_cycle(60))
              time.sleep(0.3)
              pwm.ChangeDutyCycle(angle_to_duty_cycle(90))
              time.sleep(0.3)
@@ -132,16 +132,20 @@ def worker():
             next
         else:
             #motor_mouth
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
-            time.sleep(0.5)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(75))
-            time.sleep(0.5)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
-            time.sleep(0.5)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(75))
-            time.sleep(0.5)
-            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(90))
-            time.sleep(0.5)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(10))
+            time.sleep(0.3)
+            pwm2.ChangeDutyCycle(angle_to_duty_cycle2(60))
+            time.sleep(0.3)
 
         pwm2.stop()
 
@@ -164,14 +168,13 @@ def worker():
 
 
     # Combine two function of motor
-    def shake_head(): 
-        check = check_answer(card)
-        if check == True:
-            Motor_head(True)
-            Motor_mouth(False)
-        elif check == False:
-            Motor_head(False)
-            Motor_mouth(True)    
+    def shake_head_correct(): 
+        Motor_head(True)
+        Motor_mouth(False)
+
+    def shake_head_wrong():
+        Motor_head(False)
+        Motor_mouth(True)    
          
          
     while True:
@@ -201,7 +204,7 @@ def worker():
                 channel1.play(pygame.mixer.Sound(ans_sound))
                 sleep(3)
                 
-                t = Thread(target=shake_head) #Set up the thread
+                t = Thread(target=shake_head_correct) #Set up the thread
                 t.daemon = True        
                 t.start() #Start spliting the program into 2 threads
                 Eyes('True') #show eyes image and play music
@@ -213,7 +216,7 @@ def worker():
                 channel1.play(pygame.mixer.Sound(ans_sound))
                 sleep(3)
                 
-                t = Thread(target=shake_head) #Set up the thread
+                t = Thread(target=shake_head_wrong) #Set up the thread
                 t.daemon = True
                 t.start() #Start spliting the program into 2 threads
                 Eyes('False')
@@ -235,7 +238,7 @@ pygame.mixer.init()
 
 #Pygame parameter
 DISPLAY_WIDTH = 480 #Define LCD monitor width
-DISPLAY_HEIGHT = 640 #Define LCD monitor height
+DISPLAY_HEIGHT = 800 #Define LCD monitor height
 START_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
 QUIT_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 + START_BUTTON_POSITION_X * 2
 EASY_BUTTON_POSITION_X = DISPLAY_WIDTH / 2 / 2 /2
@@ -443,10 +446,10 @@ def game_loop(difficult = None):
 
         button("跳過", 0, 0, 140, 65, RED, BRIGHT_RED, pass_ans)
         
-        if get_HOLD() == True:
-            button("HELD", 280, 0, 140, 65, RED, BRIGHT_RED, set_HOLD)
-        else:
-            button("HOLD", 280, 0, 140, 65, GREEN, BRIGHT_GREEN, set_HOLD)
+        ##if get_HOLD() == True:
+            ##button("HELD", 280, 0, 140, 65, RED, BRIGHT_RED, set_HOLD)
+        ##else:
+            ##button("HOLD", 280, 0, 140, 65, GREEN, BRIGHT_GREEN, set_HOLD)
 
         #button("TEST", 0, 0, 120, 50, RED, BRIGHT_RED, udpateScore)
 
@@ -478,7 +481,7 @@ def game_end():
     elif SCORE > 5:
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
     elif SCORE >= 1:
-        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/good.mp3']
+        score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/notbad.mp3']
     else:
         score_sound = ['/home/pi/Desktop/Doll_Therapy/media/sound/again.mp3']
         
