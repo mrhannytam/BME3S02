@@ -167,9 +167,9 @@ def worker():
         #Check whether the answer is correct or not
         def check_answer(ans):
             try:
-                print('This is ans', ans, 'The type is', type(ans))
-                print('This is current_question_number', CURRENT_QUESTION_NUMBER, 'the type is', type(CURRENT_QUESTION_NUMBER))
-                if ans == CURRENT_QUESTION_NUMBER:
+                #print('This is ans', ans, 'The type is', type(ans))
+                #print('This is current_question_number', CURRENT_QUESTION_NUMBER, 'the type is', type(CURRENT_QUESTION_NUMBER))
+                if ans == int(CURRENT_QUESTION_NUMBER):
                     return True
                 else:
                     return False
