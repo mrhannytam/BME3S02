@@ -417,7 +417,7 @@ def game_loop(difficult = None):
     # Set countign time and event
     counter, time = 60, '60'.rjust(3) #SET COUNT TIME
     COUNTTIMEEVENT = pygame.USEREVENT + 1 #Define count time event
-    pygame.time.set_timer(COUNTTIMEEVENT, 1500) #The count time event repeat every 1s
+    pygame.time.set_timer(COUNTTIMEEVENT, 1000) #The count time event repeat every 1s
 
     # Load the first question before while loop
     quest = CURRENT_QUESTION #Get the first question before loping
