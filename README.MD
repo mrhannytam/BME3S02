@@ -26,20 +26,28 @@ python3 /home/pi/Desktop/Doll_Therapy/main.py
 Project Structure:
 1. .git
 2. README.MD
-3. main.py (Main Program!!!)
-4. test_oled.py (Test the OLED monitor)
-5. test_rfid.py (Display content from IC card)
-6. write_rfid.py (Write content to the IC card)
-7. testing.py (for testing shit)
-8. media
-    * font 
-    * image (For further development)
-    * question (Easy question mp3)
-    * question_hard (Hard question mp3)
-    * game_image (Easy question image)
-    * game_image_hard (Hard question image)
-    * ans(All answer wav)
-    * sound (sound effect)
+3. requirement.txt
+4. main.py
+5. maintest.py
+6. test_oled.py
+7. test_rfid.py
+8. write_rfid.py
+9. test_motor.py
+10. test_motor_move.py
+11. media
+    * ans
+    * font
+    * game_image
+    * game_image_hard
+    * question
+    * question_hard
+    * sound
+    * cheerup
+    * difficulty
+    * effect
+    * opening
+    * timesup
+
 
 
 ## Main Program
@@ -48,41 +56,74 @@ Project Structure:
     2. Pygame game control
 
 * Each threads access the global variables
-    * QUESTION (A list contain all questions' mp3 path)
-    * CURRENT_QUESTION (Sored the current question's mp3 path)
-    * SCORE (Marks)
-    * card (Received IC card value)
-    * HOLD (Answer the question until correct)
+    * QUESTION
+    * QUESTION_COUNT
+    * CURRENT_QUESTION
+    * CURRENT_QUESTION_NUMBER
+    * CURRENT_CARD
+    * SCORE
+    * HOLD
+
 
 * GPIO Control Functions
-    * Eyes(bool) -> Control OLED monitor + play sound effect
-    * Motor_head(bool) -> Control robot head
-    * Motor_mouth(bool) -> Contorl robot mouth
-    * shake_head(bool) -> Control robot head and mouth at the same time
-    * change_current_question() -> Change CURRENT_QUESTION
-    * check_answer(int) -> Check the content of IC Card == mp3 file name
+    * Eyes(boolean)
+    * Eyes: blink()
+    * Eyes: slowblink()
+    * Motor_head(boolean)
+    * Motor_mouth(boolean)
+    * shake_head_correct()
+    * shake_head_wrong()
+    * change_current_question()
+    * check_answer(int)
+
 
 * Pygame Game Control Functions
-    * button(str, int, int, int, int, tuple, tuple, function) -> Define a button with action
-    * text_objects(str, pygame.font.Font, tuple) -> Define a Text
-    * game_intro() -> Welcome Page
-    * difficulty() -> Choose difficulty
-    * game_loop() -> Main game logic
-    * game_end() -> End game Page
-    * quitgame() -> Quit entire game
-        *  PRODUCTION: Really turn off the computer
-        *  DEV: Turn off the pygame
-        *  i.e. Comment or commend out the code by yourself!!!
+    * text_objects(string, font, tuple)
+    * button(string, int, int, int, int, tuple, tuple, function, string)
+    * game_intro()
+    * difficulty()
+    * game_loop()
+    * game_end()
+    * quitgame()
+    * updateScore()
+    * pass_ans()
+    * set_HOLD()
+    * get_HOLD()
+
 
 ## Production Reminder
 1. Change the quitgame() from DEV to PRODUCTION
-2. Rotate the computer screen 90 degree [HERE](https://www.debugpoint.com/2019/12/how-to-rotate-display-in-ubuntu-linux/) or "sudo nano /boot/config.txt"
+2. Rotate the computer screen 90 degree
+    * Add the following code into /boot/config.txt 
+        ```
+        max_usb_current=1
+        hdmi_force_hotplug=1
+        config_hdmi_boost=7
+        hdmi_group=2
+        hdmi_mode=1
+        hdmi_mode=87
+        hdmi_drive=1
+        hdmi_cvt 800 480 60 6 0 0 0
+        display_rotate = 3
+        ```
+
+    * Installing X Server driver
+        ```
+        sudo apt get install xserver-xorg-input-libinput
+        sudo mkdir etc/X11/xorg.conf.d
+        sudo cp /usr/share/X11/xorg.conf.d/40-libinput.conf /etc/X11/xorg.conf.d/
+        sudo nano /etc/X11/xorg.conf.d/40-libinput.conf
+        ```
+    * Change the option CalibrationMatrix to "0 1 0 1 0 1 0 0 1"
 3. Adjust the screen size (DISPLAY_WIDTH and DISPLAY_HEIGHT)
-4. Run the script when computer boot [Method 1 HERE](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/)
-5. Dont use other methods especially /etc/profile!!! since the program runs 2 threads. This will make the computer like a SHIT. [RECOVER HERE 1](https://raspberrypi.stackexchange.com/questions/83369/how-to-stop-a-python-script-running-at-startup-by-default#:~:text=You%20can%20try%20spamming%20ALT,of%20the%20script%20execution%20command.), [RECOVER HERE 2](https://www.howtogeek.com/112888/3-ways-to-access-your-linux-partitions-from-windows/)
+4. Run the script when computer boot [Method 2 HERE](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/)
+5. Dont use other methods especially /etc/profile!!! since the program runs 2 threads. This will make the computer crush. [RECOVER HERE](https://www.paragon-software.com/home/linuxfs-windows/#oem)
 
 
 ## Upload Code
-1. git add . 
-2. git commit -m 'your comment'
-3. git push
+```
+git pull
+git add . 
+git commit -m 'your comment'
+git push
+```
