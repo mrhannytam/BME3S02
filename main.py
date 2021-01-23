@@ -44,7 +44,7 @@ shuffle(QUESTION)
 CURRENT_QUESTION = QUESTION.pop(0)
 CURRENT_QUESTION_NUMBER = CURRENT_QUESTION[re.search('\d', CURRENT_QUESTION).start():].replace('.mp3', '')
 SCORE = 0
-card = 0
+CURRENT_CARD = 0
 HOLD = True # If True, hold question until correct
 '''QUESTION Initialization'''
 
@@ -201,16 +201,16 @@ def worker():
                     id, text = reader.read()
                     sleep(0.3)
                     print('I tap.........................', text)
-                    card = int(text)
-                    print('Current Question number is: ', CURRENT_QUESTION_NUMBER, 'Tapped number is: ', card)
+                    CURRENT_CARD = int(text)
+                    print('Current Question number is: ', CURRENT_QUESTION_NUMBER, 'Tapped number is: ', CURRENT_CARD)
                     
                                     
                     ans_sound = CURRENT_QUESTION
                     ans_sound = ans_sound.replace('question_hard', 'ans').replace('question', 'ans')
-                    ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER + '.mp3', str(card) + '.wav')
+                    ans_sound = ans_sound.replace(CURRENT_QUESTION_NUMBER + '.mp3', str(CURRENT_CARD) + '.wav')
                     print('Playing answer sound:', ans_sound)
             
-                    if check_answer(card): #Checking answer
+                    if check_answer(CURRENT_CARD): #Checking answer
                         global SCORE
                         SCORE += 1 #Add score
                         change_current_question() #Change question
