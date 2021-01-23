@@ -56,7 +56,7 @@ Project Structure:
     2. Pygame game control
 
 * Each threads access the global variables
-    * QUESTION
+    * QUESTION -> 
     * QUESTION_COUNT
     * CURRENT_QUESTION
     * CURRENT_QUESTION_NUMBER
@@ -115,6 +115,8 @@ Project Structure:
         sudo nano /etc/X11/xorg.conf.d/40-libinput.conf
         ```
     * Change the option CalibrationMatrix to "0 1 0 1 0 1 0 0 1"
+    ![](https://i.imgur.com/vUmSD5B.png)
+
 3. Adjust the screen size (DISPLAY_WIDTH and DISPLAY_HEIGHT)
 4. Run the script when computer boot [Method 2 HERE](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/)
 5. Dont use other methods especially /etc/profile!!! since the program runs 2 threads. This will make the computer crush. [RECOVER HERE](https://www.paragon-software.com/home/linuxfs-windows/#oem)
